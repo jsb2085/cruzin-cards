@@ -1,0 +1,4 @@
+*.jpg
+db.sqlite3
+mobile_card/node_modules
+backend/.env
