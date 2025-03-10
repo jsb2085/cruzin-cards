@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, FlatList, Image, StyleSheet } from 'react-native';
 import axios from 'axios';
 
-const API_URL = 'http://YOUR_BACKEND_URL/api'; // Replace with your backend URL
+const API_URL = 'http://127.0.0.1:8000/api'; // Replace with your backend URL
 
 export default function ViewCards() {
   const [cards, setCards] = useState([]);
@@ -13,7 +13,7 @@ export default function ViewCards() {
 
   const fetchCards = async () => {
     try {
-      const response = await axios.get(`${API_URL}/items/`);
+      const response = await axios.get(`${API_URL}/cards/`);
       setCards(response.data);
     } catch (error) {
       console.error('Error fetching cards:', error);
@@ -46,6 +46,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingTop: 50,
+    paddingBottom: 60,
     backgroundColor: '#fff',
   },
   list: {
