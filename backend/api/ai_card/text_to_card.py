@@ -10,7 +10,7 @@ load_dotenv()
 groq = Groq(api_key=os.environ.get("GROQ_API_KEY"))
 
 
-# Task model for generating tasks
+# Card model for generating card info
 class Card(BaseModel):
     name: str
     number: str

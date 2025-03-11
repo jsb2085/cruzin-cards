@@ -10,6 +10,7 @@ import cv2
 from .models import CardImage
 from .ai_card.card_to_text import combine_images, extract_text_from_image  # Ensure these are imported correctly
 from .ai_card.text_to_card import create_card
+from .card_types.magic import ai_name_year_magic, magic_name_and_year
 
 class CardListCreateView(generics.ListCreateAPIView):
     queryset = Card.objects.all()
@@ -39,26 +40,31 @@ class CardImageUploadView(APIView):
             card_image.extracted_text = extracted_text
             card_image.save()
 
-            if ['Pokemon', 'pokemon'] in extracted_text:
-                # TODO add pokemon functionality
-                pass
+            if "MAGIC" in extracted_text:
+                magic_card = ai_name_year_magic(extracted_text)
+                magic_info = magic_name_and_year(magic_card.name, magic_card.year)
+                card = Card.objects.create(
+                    name=magic_info[0]['name'],
+                    set=magic_info[0]['set_name'],
+                    number=magic_info[0]['collector_number'],
+                    card_company="Magic the Gathering",
+                    numeration="None",
+                    autograph=False,
+                    card_image=card_image
+                )
 
-            if ['Magic the Gathering',] in extracted_text:
-                # TODO add magic functionality
-                pass
+            else:
+                card_data = create_card(extracted_text)
 
-
-            card_data = create_card(extracted_text)
-
-            card = Card.objects.create(
-                name=card_data.name,
-                set=card_data.set,
-                number=card_data.number,
-                card_company=card_data.card_company,
-                numeration=card_data.numeration,
-                autograph=card_data.autograph,
-                card_image = card_image
-            )
+                card = Card.objects.create(
+                    name=card_data.name,
+                    set=card_data.set,
+                    number=card_data.number,
+                    card_company=card_data.card_company,
+                    numeration=card_data.numeration,
+                    autograph=card_data.autograph,
+                    card_image=card_image
+                )
 
             card.save()
 

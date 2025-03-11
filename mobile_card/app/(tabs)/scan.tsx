@@ -26,11 +26,11 @@ export default function UploadCard() {
     let result = fromLibrary
       ? await ImagePicker.launchImageLibraryAsync({
           mediaTypes: ImagePicker.MediaTypeOptions.Images,
-          allowsEditing: true,
+          allowsEditing: false,
           quality: 1,
         })
       : await ImagePicker.launchCameraAsync({
-          allowsEditing: true,
+          allowsEditing: false,
           quality: 1,
         });
 
@@ -110,6 +110,11 @@ const styles = StyleSheet.create({
     height: 400,
     marginVertical: 20,
     borderRadius: 8,
+    borderWidth: 0, // Remove borders
+    shadowColor: 'transparent', // Remove iOS shadows
+    elevation: 0, // Remove Android shadows
+    resizeMode: 'cover', // Ensures the image fills the frame
+    overflow: 'hidden', // Ensures content doesn't spill over
   },
 });
 
