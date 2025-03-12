@@ -11,6 +11,7 @@ from .models import CardImage
 from .ai_card.card_to_text import combine_images, extract_text_from_image  # Ensure these are imported correctly
 from .ai_card.text_to_card import create_card
 from .card_types.magic import ai_name_year_magic, magic_name_and_year
+from .card_types.pokemon import ai_name_year_pokemon, pokemon_name_and_set_number
 
 class CardListCreateView(generics.ListCreateAPIView):
     queryset = Card.objects.all()
@@ -52,8 +53,18 @@ class CardImageUploadView(APIView):
                     autograph=False,
                     card_image=card_image
                 )
-            # elif "Pokemon" in extracted_text:
-                
+            elif "Pokémon" in extracted_text:
+                pokemon_card = ai_name_year_pokemon(extracted_text)
+                pokemon_info = pokemon_name_and_set_number(pokemon_card.name, pokemon_card.set_number)
+                card = Card.objects.create(
+                    name=pokemon_card.name,
+                    set=pokemon_card.set_number,
+                    number="None",
+                    card_company="Pokémon",
+                    numeration="None",
+                    autograph=False,
+                    card_image=card_image
+                )
             else: 
                 card_data = create_card(extracted_text)
 
