@@ -3,7 +3,7 @@ import { View, Button, Image, StyleSheet, ActivityIndicator, Alert, ScrollView, 
 import * as ImagePicker from 'expo-image-picker';
 import axios from 'axios';
 
-const API_URL = 'http://127.0.0.1:8000/api/upload/'; // Replace with your local network IP address
+const API_URL = 'http://127.0.0.1:8081/api/upload/'; // Replace with your local network IP address
 
 export default function UploadCard() {
   const [frontImage, setFrontImage] = useState<string | null>(null);
@@ -44,21 +44,21 @@ export default function UploadCard() {
       Alert.alert('Error', 'Both images must be selected before uploading.');
       return;
     }
-
+  
     const formData = new FormData();
-
+  
     formData.append('card_front_image', {
       uri: normalizeUri(frontImage),
       name: 'front.jpg',
       type: 'image/jpeg',
     });
-
+  
     formData.append('card_back_image', {
       uri: normalizeUri(backImage),
       name: 'back.jpg',
       type: 'image/jpeg',
     });
-
+  
     setUploading(true);
     try {
       const response = await axios.post(API_URL, formData, {
@@ -66,7 +66,7 @@ export default function UploadCard() {
           'Content-Type': 'multipart/form-data',
         },
       });
-
+  
       console.log('Upload success:', response.data);
       Alert.alert('Success', 'Images uploaded successfully!');
     } catch (error) {

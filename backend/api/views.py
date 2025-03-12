@@ -52,8 +52,9 @@ class CardImageUploadView(APIView):
                     autograph=False,
                     card_image=card_image
                 )
-
-            else:
+            # elif "Pokemon" in extracted_text:
+                
+            else: 
                 card_data = create_card(extracted_text)
 
                 card = Card.objects.create(
