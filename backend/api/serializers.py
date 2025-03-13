@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Card, CardImage
+from .models import Card, CardImage, CardShop
 
 class CardImageSerializer(serializers.ModelSerializer):
     class Meta:
@@ -33,3 +33,37 @@ class CardSerializer(serializers.ModelSerializer):
 
         instance.save()
         return instance
+
+class CardShopSerializer(serializers.ModelSerializer):
+    owner = serializers.StringRelatedField(read_only=True)  # Display owner's username
+
+    class Meta:
+        model = CardShop
+        fields = [
+            'id',
+            'owner',
+            'name',
+            'description',
+            'address',
+            'city',
+            'state',
+            'postal_code',
+            'country',
+            'phone',
+            'website',
+            'created_at',
+            'updated_at'
+        ]
+        read_only_fields = ['id', 'created_at', 'updated_at']
+
+    def create(self, validated_data):
+        user = self.context['request'].user
+        validated_data['owner'] = user
+        return super().create(validated_data)
+
+    def update(self, instance, validated_data):
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+        return instance
+

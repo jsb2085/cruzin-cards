@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, FlatList, Image, StyleSheet } from 'react-native';
 import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const API_URL = 'http://127.0.0.1:8000/api'; // Replace with your backend URL
 
@@ -13,7 +14,12 @@ export default function ViewCards() {
 
   const fetchCards = async () => {
     try {
-      const response = await axios.get(`${API_URL}/cards/`);
+      const token = await AsyncStorage.getItem('access_token');
+      const response = await axios.get('http://127.0.0.1:8000/api/cards/', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       setCards(response.data);
     } catch (error) {
       console.error('Error fetching cards:', error);
