@@ -1,14 +1,19 @@
 import React, { useState } from 'react';
-import { View, Button, Image, StyleSheet, ActivityIndicator, Alert, ScrollView, Platform } from 'react-native';
+import { View, Button, Image, StyleSheet, ActivityIndicator, Alert, ScrollView, Platform, Modal, TextInput, Text } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import axios from 'axios';
 
-const API_URL = 'http://127.0.0.1:8081/api/upload/'; // Replace with your local network IP address
+const API_URL = 'http://127.0.0.1:8000/api/upload/'; // Replace with your local network IP address
 
 export default function UploadCard() {
   const [frontImage, setFrontImage] = useState<string | null>(null);
   const [backImage, setBackImage] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [manualInputVisible, setManualInputVisible] = useState(false);
+  const [manualName, setManualName] = useState('');
+  const [manualNumber, setManualNumber] = useState('');
+  const [manualCardImage, setManualCardImage] = useState(null);
+  const [manualCardCompany, setManualCardCompany] = useState('');
 
   // Normalize URI for iOS (remove file:// if necessary)
   const normalizeUri = (uri: string) => (Platform.OS === 'ios' ? uri.replace('file://', '') : uri);
@@ -39,6 +44,37 @@ export default function UploadCard() {
     }
   };
 
+  const handleManualSubmit = async () => {
+    if (!manualName || !manualNumber) {
+      Alert.alert('Error', 'Both name and number must be provided.');
+      return;
+    }
+  
+    const formData = new FormData();
+    formData.append('name', manualName);
+    formData.append('number', manualNumber);
+    formData.append('image_id', manualCardImage);
+    formData.append('card_company', manualCardCompany);
+  
+    try {
+      const response = await axios.post(`${API_URL}manual/`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+  
+      if (response.data === 'manual') {
+        Alert.alert('Error', 'Invalid input. Please try again.');
+      } else {
+        Alert.alert('Success', 'Card created successfully!');
+        setManualInputVisible(false);
+      }
+    } catch (error) {
+      console.error('Manual input error:', error.response?.data || error.message);
+      Alert.alert('Error', `Manual input failed: ${JSON.stringify(error.response?.data || error.message)}`);
+    }
+  };
+
   const uploadImages = async () => {
     if (!frontImage || !backImage) {
       Alert.alert('Error', 'Both images must be selected before uploading.');
@@ -66,9 +102,15 @@ export default function UploadCard() {
           'Content-Type': 'multipart/form-data',
         },
       });
-  
-      console.log('Upload success:', response.data);
-      Alert.alert('Success', 'Images uploaded successfully!');
+      if (response.data.status === 'manual') {
+        setManualName(response.data.extracted_name);
+        setManualNumber(response.data.extracted_number);
+        setManualCardImage(response.data.image_id);
+        setManualCardCompany(response.data.card_company);
+        setManualInputVisible(true);
+      } else {
+        Alert.alert('Success', 'Images uploaded successfully!');
+      }
     } catch (error) {
       console.error('Upload error:', error.response?.data || error.message);
       Alert.alert('Error', `Upload failed: ${JSON.stringify(error.response?.data || error.message)}`);
@@ -93,6 +135,28 @@ export default function UploadCard() {
         )}
 
         {uploading && <ActivityIndicator size="large" color="#0000ff" />}
+
+        <Modal visible={manualInputVisible} transparent={true} animationType="slide">
+          <View style={styles.modalContainer}>
+            <View style={styles.modalContent}>
+              <Text style={styles.modalTitle}>Unrecognized {manualCardCompany} card:</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="Name"
+                value={manualName}
+                onChangeText={setManualName}
+              />
+              <TextInput
+                style={styles.input}
+                placeholder="Number"
+                value={manualNumber}
+                onChangeText={setManualNumber}
+              />
+              <Button title="Submit" onPress={handleManualSubmit} />
+              <Button title="Cancel" onPress={() => setManualInputVisible(false)} />
+            </View>
+          </View>
+        </Modal>
       </View>
     </ScrollView>
   );
@@ -115,6 +179,31 @@ const styles = StyleSheet.create({
     elevation: 0, // Remove Android shadows
     resizeMode: 'cover', // Ensures the image fills the frame
     overflow: 'hidden', // Ensures content doesn't spill over
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContent: {
+    width: '80%',
+    padding: 20,
+    backgroundColor: 'white',
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+  modalTitle: {
+    fontSize: 18,
+    marginBottom: 10,
+  },
+  input: {
+    width: '100%',
+    padding: 10,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 5,
+    marginBottom: 10,
   },
 });
 
