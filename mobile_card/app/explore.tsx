@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, Image, StyleSheet } from 'react-native';
+import { View, Text, FlatList, Image, StyleSheet, RefreshControl } from 'react-native';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -7,6 +7,7 @@ const API_URL = 'http://127.0.0.1:8000/api'; // Replace with your backend URL
 
 export default function ViewCards() {
   const [cards, setCards] = useState([]);
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
     fetchCards();
@@ -15,7 +16,7 @@ export default function ViewCards() {
   const fetchCards = async () => {
     try {
       const token = await AsyncStorage.getItem('access_token');
-      const response = await axios.get('http://127.0.0.1:8000/api/cards/', {
+      const response = await axios.get(`${API_URL}/cards/`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -24,6 +25,13 @@ export default function ViewCards() {
     } catch (error) {
       console.error('Error fetching cards:', error);
     }
+  };
+
+  // Handle Pull-to-Refresh
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await fetchCards();
+    setRefreshing(false);
   };
 
   const renderItem = ({ item }) => (
@@ -43,6 +51,9 @@ export default function ViewCards() {
         keyExtractor={(item) => item.id.toString()}
         renderItem={renderItem}
         contentContainerStyle={styles.list}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
       />
     </View>
   );

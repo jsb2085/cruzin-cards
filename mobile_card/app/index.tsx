@@ -8,6 +8,7 @@ import {
   StyleSheet,
   Alert,
   ActivityIndicator,
+  RefreshControl
 } from 'react-native';
 import { useRouter } from "expo-router";
 import axios from 'axios';
@@ -17,6 +18,7 @@ export default function HomeScreen() {
   const [cards, setCards] = useState([]);
   const [loading, setLoading] = useState(true);
   const [username, setUsername] = useState('');
+  const [refreshing, setRefreshing] = useState(false);
   const router = useRouter();
 
   // Fetch cards for the authenticated user
@@ -47,6 +49,12 @@ export default function HomeScreen() {
     fetchCards();
     fetchUsername();
   }, []);
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await fetchCards();
+    setRefreshing(false);
+  };
 
   // Logout the user
   const logout = async () => {
@@ -90,6 +98,9 @@ export default function HomeScreen() {
           keyExtractor={(item) => item.id.toString()}
           renderItem={renderCardItem}
           ListEmptyComponent={<Text>No cards found.</Text>}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          }
         />
       )}
     </View>

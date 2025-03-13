@@ -2,9 +2,8 @@ import React, { useEffect, useState } from "react";
 import { Tabs, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import * as SystemUI from "expo-system-ui";
 import { BackHandler, View, StyleSheet } from "react-native";
-import { useNavigation } from "@react-navigation/native";
+
 
 
 function TabsLayout() {
@@ -83,7 +82,17 @@ function TabsLayout() {
 
           if (route.name === "index") {
             iconName = focused ? "home" : "home-outline";
-          } else {
+          }
+          else if (route.name === "explore") {
+            iconName = focused ? "folder" : "folder-outline";
+          }
+          else if (route.name === "scan") {
+            iconName = focused ? "camera" : "camera-outline";
+          }
+          else if (route.name === "login") {
+            iconName = focused ? "person" : "person-outline";
+          }
+          else {
             iconName = "help-circle";
           }
 
@@ -103,8 +112,9 @@ function TabsLayout() {
       })}
     >
       <Tabs.Screen name="login" options={{ title: "Login" }} />
-      <Tabs.Screen name="explore" options={{ title: "Explore" }} />
+      <Tabs.Screen name="explore" options={{ title: "My Cards" }} />
       <Tabs.Screen name="index" options={{ title: "Home" }} />
+      <Tabs.Screen name="scan" options={{ title: "Scan Card" }} />
       <Tabs.Screen
         name="register"
         options={{
