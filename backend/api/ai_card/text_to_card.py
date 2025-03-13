@@ -16,8 +16,11 @@ class Card(BaseModel):
     number: str
     set: str
     card_company: str
-    numeration: str
+    numeration: Optional[str] = None
     autograph: bool
+    is_graded: bool
+    grade: Optional[float] = None
+    grade_company: Optional[str] = None
 
 
 def create_card(card_text: str):
