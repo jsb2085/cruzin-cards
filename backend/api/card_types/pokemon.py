@@ -20,14 +20,14 @@ def pokemon_name_and_set_number(card_name, set_number):
     response = requests.get(base_url, params=params)
     if response.status_code == 200:
         data = response.json()
-        if data['total_cards'] > 0:
+        if data['totalCount'] > 0:
             return data['data']
         else:
             return f"No cards found for '{card_name}' in {set_number}."
     else:
         return f"Error: {response.status_code}"
     
-def ai_name_year_pokemon(card_text: str):
+def ai_name_set_number_pokemon(card_text: str):
     print("Card text: " + card_text)
     chat_completion = groq.chat.completions.create(
         messages=[
