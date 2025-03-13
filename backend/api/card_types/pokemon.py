@@ -23,7 +23,8 @@ def pokemon_name_and_set_number(card_name, set_number):
         if data['totalCount'] > 0:
             return data['data']
         else:
-            return f"No cards found for '{card_name}' in {set_number}."
+            print(f"No cards found for '{card_name}' with set number {set_number}.")
+            return "manual"
     else:
         return f"Error: {response.status_code}"
     
@@ -33,7 +34,7 @@ def ai_name_set_number_pokemon(card_text: str):
             {
                 "role": "system",
                 "content": "You are a productivity assistant that uses extracted trading card text to determine what the card is.\n"
-                f"The JSON object must use the schema: {json.dumps(PokemonCard.model_json_schema(), indent=2)}. Let set_number be the number of the card in the set. Hyphenate GX/EX cards. For example, 'Charizard GX' should be 'Charizard-GX'.",
+                f"The JSON object must use the schema: {json.dumps(PokemonCard.model_json_schema(), indent=2)}. Let set_number be the number of the card in the set, which is always in the form 'set_number/printed_total'. For example, if the set number and total is 065/105, set_number should be 65. Hyphenate GX/EX cards, use all spaces for VMAX and BREAK cards. For example, 'Mega Charizard GX' should be 'Mega Charizard-GX', but 'Lugia BREAK' should remain 'Lugia Break'. Include symbols, like &. For example, 'Mewtwo & Mew GX' should be 'Mewtwo & Mew-GX'.",
             },
             {
                 "role": "user",
