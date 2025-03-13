@@ -11,7 +11,7 @@ groq = Groq(api_key=os.environ.get("GROQ_API_KEY"))
 
 class PokemonCard(BaseModel):
     name: str
-    set_number: str
+    set_number: int
 
 def pokemon_name_and_set_number(card_name, set_number):
     base_url = "https://api.pokemontcg.io/v2/cards"
@@ -28,13 +28,12 @@ def pokemon_name_and_set_number(card_name, set_number):
         return f"Error: {response.status_code}"
     
 def ai_name_set_number_pokemon(card_text: str):
-    print("Card text: " + card_text)
     chat_completion = groq.chat.completions.create(
         messages=[
             {
                 "role": "system",
                 "content": "You are a productivity assistant that uses extracted trading card text to determine what the card is.\n"
-                f"The JSON object must use the schema: {json.dumps(PokemonCard.model_json_schema(), indent=2)}",
+                f"The JSON object must use the schema: {json.dumps(PokemonCard.model_json_schema(), indent=2)}. Let set_number be the number of the card in the set. Hyphenate GX/EX cards. For example, 'Charizard GX' should be 'Charizard-GX'.",
             },
             {
                 "role": "user",

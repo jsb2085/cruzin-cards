@@ -56,10 +56,11 @@ class CardImageUploadView(APIView):
             elif "Pokémon" in extracted_text:
                 pokemon_card = ai_name_set_number_pokemon(extracted_text)
                 pokemon_info = pokemon_name_and_set_number(pokemon_card.name, pokemon_card.set_number)
+                print(pokemon_info)
                 card = Card.objects.create(
-                    name=pokemon_card.name,
-                    set=pokemon_card.set_number,
-                    number="None",
+                    name=pokemon_info[0]['name'],
+                    set=pokemon_info[0]['set']['name'],
+                    number=f'{pokemon_card.set_number}/{pokemon_info[0]["set"]["printedTotal"]}',  
                     card_company="Pokémon",
                     numeration="None",
                     autograph=False,
