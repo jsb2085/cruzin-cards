@@ -1,9 +1,22 @@
-import React, { useState } from 'react';
-import { View, Button, Image, StyleSheet, ActivityIndicator, Alert, ScrollView, Platform, Modal, TextInput, Text } from 'react-native';
-import * as ImagePicker from 'expo-image-picker';
-import axios from 'axios';
+import React, { useState } from "react";
+import {
+  View,
+  Button,
+  Image,
+  StyleSheet,
+  ActivityIndicator,
+  Alert,
+  ScrollView,
+  Platform,
+  Modal,
+  TextInput,
+  Text
+} from "react-native";
+import * as ImagePicker from "expo-image-picker";
+import axios from "axios";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const API_URL = 'http://127.0.0.1:8000/api/upload/'; // Replace with your local network IP address
+const API_URL = "http://127.0.0.1:8000/api/upload/"; // Replace with your local network IP address
 
 export default function UploadCard() {
   const [frontImage, setFrontImage] = useState<string | null>(null);
@@ -16,15 +29,17 @@ export default function UploadCard() {
   const [manualCardCompany, setManualCardCompany] = useState('');
 
   // Normalize URI for iOS (remove file:// if necessary)
-  const normalizeUri = (uri: string) => (Platform.OS === 'ios' ? uri.replace('file://', '') : uri);
+  const normalizeUri = (uri: string) =>
+    Platform.OS === "ios" ? uri.replace("file://", "") : uri;
 
-  const pickImage = async (setImage: React.Dispatch<React.SetStateAction<string | null>>, fromLibrary = false) => {
+  const pickImage = async (
+    setImage: React.Dispatch<React.SetStateAction<string | null>>, fromLibrary = false) => {
     let permissionResult = fromLibrary
       ? await ImagePicker.requestMediaLibraryPermissionsAsync()
       : await ImagePicker.requestCameraPermissionsAsync();
 
-    if (permissionResult.status !== 'granted') {
-      alert('Permission to access media is required!');
+    if (permissionResult.status !== "granted") {
+      alert("Permission to access media is required!");
       return;
     }
 
@@ -77,29 +92,32 @@ export default function UploadCard() {
 
   const uploadImages = async () => {
     if (!frontImage || !backImage) {
-      Alert.alert('Error', 'Both images must be selected before uploading.');
+      Alert.alert("Error", "Both images must be selected before uploading.");
       return;
     }
-  
+
     const formData = new FormData();
-  
-    formData.append('card_front_image', {
+
+    formData.append("card_front_image", {
       uri: normalizeUri(frontImage),
-      name: 'front.jpg',
-      type: 'image/jpeg',
+      name: "front.jpg",
+      type: "image/jpeg",
     });
-  
-    formData.append('card_back_image', {
+
+    formData.append("card_back_image", {
       uri: normalizeUri(backImage),
-      name: 'back.jpg',
-      type: 'image/jpeg',
+      name: "back.jpg",
+      type: "image/jpeg",
     });
-  
+
     setUploading(true);
     try {
+      const token = await AsyncStorage.getItem("access_token");
+      console.log(token);
       const response = await axios.post(API_URL, formData, {
         headers: {
-          'Content-Type': 'multipart/form-data',
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
         },
       });
       if (response.data.status === 'manual') {
@@ -112,8 +130,13 @@ export default function UploadCard() {
         Alert.alert('Success', 'Images uploaded successfully!');
       }
     } catch (error) {
-      console.error('Upload error:', error.response?.data || error.message);
-      Alert.alert('Error', `Upload failed: ${JSON.stringify(error.response?.data || error.message)}`);
+      console.error("Upload error:", error.response?.data || error.message);
+      Alert.alert(
+        "Error",
+        `Upload failed: ${JSON.stringify(
+          error.response?.data || error.message
+        )}`
+      );
     } finally {
       setUploading(false);
     }
@@ -122,41 +145,61 @@ export default function UploadCard() {
   return (
     <ScrollView>
       <View style={styles.container}>
-        <Button title="Take Front Image" onPress={() => pickImage(setFrontImage)} />
-        <Button title="Select Front Image from Gallery" onPress={() => pickImage(setFrontImage, true)} />
-        {frontImage && <Image source={{ uri: frontImage }} style={styles.image} />}
+        <Button
+          title="Take Front Image"
+          onPress={() => pickImage(setFrontImage)}
+        />
+        <Button
+          title="Select Front Image from Gallery"
+          onPress={() => pickImage(setFrontImage, true)}
+        />
+        {frontImage && (
+          <Image source={{ uri: frontImage }} style={styles.image} />
+        )}
 
-        <Button title="Take Back Image" onPress={() => pickImage(setBackImage)} />
-        <Button title="Select Back Image from Gallery" onPress={() => pickImage(setBackImage, true)} />
-        {backImage && <Image source={{ uri: backImage }} style={styles.image} />}
+        <Button
+          title="Take Back Image"
+          onPress={() => pickImage(setBackImage)}
+        />
+        <Button
+          title="Select Back Image from Gallery"
+          onPress={() => pickImage(setBackImage, true)}
+        />
+        {backImage && (
+          <Image source={{ uri: backImage }} style={styles.image} />
+        )}
 
         {frontImage && backImage && (
-          <Button title="Upload to Backend" onPress={uploadImages} disabled={uploading} />
+          <Button
+            title="Upload to Backend"
+            onPress={uploadImages}
+            disabled={uploading}
+          />
         )}
 
         {uploading && <ActivityIndicator size="large" color="#0000ff" />}
 
         <Modal visible={manualInputVisible} transparent={true} animationType="slide">
-          <View style={styles.modalContainer}>
-            <View style={styles.modalContent}>
-              <Text style={styles.modalTitle}>Unrecognized {manualCardCompany} card:</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="Name"
-                value={manualName}
-                onChangeText={setManualName}
-              />
-              <TextInput
-                style={styles.input}
-                placeholder="Number"
-                value={manualNumber}
-                onChangeText={setManualNumber}
-              />
-              <Button title="Submit" onPress={handleManualSubmit} />
-              <Button title="Cancel" onPress={() => setManualInputVisible(false)} />
-            </View>
-          </View>
-        </Modal>
+                  <View style={styles.modalContainer}>
+                    <View style={styles.modalContent}>
+                      <Text style={styles.modalTitle}>Unrecognized {manualCardCompany} card:</Text>
+                      <TextInput
+                        style={styles.input}
+                        placeholder="Name"
+                        value={manualName}
+                        onChangeText={setManualName}
+                      />
+                      <TextInput
+                        style={styles.input}
+                        placeholder="Number"
+                        value={manualNumber}
+                        onChangeText={setManualNumber}
+                      />
+                      <Button title="Submit" onPress={handleManualSubmit} />
+                      <Button title="Cancel" onPress={() => setManualInputVisible(false)} />
+                    </View>
+                  </View>
+                </Modal>
       </View>
     </ScrollView>
   );
@@ -165,8 +208,8 @@ export default function UploadCard() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     padding: 80,
   },
   image: {
@@ -175,10 +218,10 @@ const styles = StyleSheet.create({
     marginVertical: 20,
     borderRadius: 8,
     borderWidth: 0, // Remove borders
-    shadowColor: 'transparent', // Remove iOS shadows
+    shadowColor: "transparent", // Remove iOS shadows
     elevation: 0, // Remove Android shadows
-    resizeMode: 'cover', // Ensures the image fills the frame
-    overflow: 'hidden', // Ensures content doesn't spill over
+    resizeMode: "cover", // Ensures the image fills the frame
+    overflow: "hidden", // Ensures content doesn't spill over
   },
   modalContainer: {
     flex: 1,
@@ -206,4 +249,3 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
 });
-
