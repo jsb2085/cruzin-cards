@@ -13,7 +13,8 @@ import * as ImagePicker from "expo-image-picker";
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const API_URL = "http://127.0.0.1:8000/api/upload/"; // Replace with your local network IP address
+const API_URL =
+  "https://cameras-adolescent-framed-lamps.trycloudflare.com/api/upload/"; // Replace with your local network IP address
 
 export default function UploadCard() {
   const [frontImage, setFrontImage] = useState<string | null>(null);

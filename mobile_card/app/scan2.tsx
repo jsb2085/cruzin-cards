@@ -13,7 +13,8 @@ import { Camera, CameraView } from "expo-camera";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 
-const API_URL = "http://127.0.0.1:8000/api/upload/"; // Replace with your backend URL
+const API_URL =
+  "https://cameras-adolescent-framed-lamps.trycloudflare.com/api/upload/"; // Replace with your backend URL
 
 export default function UploadCard() {
   const [hasPermission, setHasPermission] = useState(null);
@@ -103,6 +104,12 @@ export default function UploadCard() {
           </View>
         </CameraView>
 
+        {frontImage && backImage && (
+          <TouchableOpacity onPress={uploadImages} style={styles.uploadButton}>
+            <Text style={styles.text}>Upload Images</Text>
+          </TouchableOpacity>
+        )}
+
         {/* Buttons Below the Camera View */}
         <View style={styles.buttonContainer}>
           <TouchableOpacity onPress={takePicture} style={styles.button}>
@@ -120,12 +127,6 @@ export default function UploadCard() {
             </Text>
           </TouchableOpacity>
         </View>
-
-        {frontImage && backImage && (
-          <TouchableOpacity onPress={uploadImages} style={styles.uploadButton}>
-            <Text style={styles.text}>Upload Images</Text>
-          </TouchableOpacity>
-        )}
 
         {frontImage && (
           <Image source={{ uri: frontImage }} style={styles.image} />

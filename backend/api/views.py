@@ -136,14 +136,17 @@ class CardImageUploadView(APIView):
                         'card_company': 'Pokémon',
                         'image_id': card_image.id
                     }, status=status.HTTP_200_OK)
+
                 card = Card.objects.create(
+                    owner=self.request.user,
                     name=pokemon_info[0]['name'],
                     set=pokemon_info[0]['set']['name'],
                     number=f'{pokemon_card.set_number}/{pokemon_info[0]["set"]["printedTotal"]}',
                     card_company="Pokémon",
                     numeration="None",
                     autograph=False,
-                    card_image=card_image
+                    card_image=card_image,
+                    is_graded=False
                 )
             else:
                 card_data = create_card(extracted_text)

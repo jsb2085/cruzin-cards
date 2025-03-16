@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-+7$8%z_n&u0ez68!z8*b2&owakok4%c@0a6i$_jluqfaa_n#2f
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['cameras-adolescent-framed-lamps.trycloudflare.com']
 
 
 # Application definition
@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     # Third-party
     'rest_framework',
     'rest_framework.authtoken',
+    'rest_framework_simplejwt.token_blacklist',
     'django.contrib.sites',
     'corsheaders',
 

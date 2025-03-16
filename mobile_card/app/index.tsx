@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -8,32 +8,35 @@ import {
   StyleSheet,
   Alert,
   ActivityIndicator,
-  RefreshControl
-} from 'react-native';
+  RefreshControl,
+} from "react-native";
 import { useRouter } from "expo-router";
-import axios from 'axios';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from "axios";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function HomeScreen() {
   const [cards, setCards] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [username, setUsername] = useState('');
+  const [username, setUsername] = useState("");
   const [refreshing, setRefreshing] = useState(false);
   const router = useRouter();
 
   // Fetch cards for the authenticated user
   const fetchCards = async () => {
     try {
-      const token = await AsyncStorage.getItem('access_token');
-      const response = await axios.get('http://127.0.0.1:8000/api/cards/', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const token = await AsyncStorage.getItem("access_token");
+      const response = await axios.get(
+        "https://cameras-adolescent-framed-lamps.trycloudflare.com/api/cards/",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       setCards(response.data);
     } catch (error) {
-      console.error('Failed to fetch cards:', error);
-      Alert.alert('Error', 'Failed to load cards. Please try again.');
+      console.error("Failed to fetch cards:", error);
+      Alert.alert("Error", "Failed to load cards. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -41,8 +44,8 @@ export default function HomeScreen() {
 
   // Fetch username from stored token
   const fetchUsername = async () => {
-    const username = await AsyncStorage.getItem('username');
-    setUsername(username || 'User');
+    const username = await AsyncStorage.getItem("username");
+    setUsername(username || "User");
   };
 
   useEffect(() => {
@@ -58,16 +61,16 @@ export default function HomeScreen() {
 
   // Logout the user
   const logout = async () => {
-    await AsyncStorage.removeItem('access_token');
-    await AsyncStorage.removeItem('refresh_token');
-    await AsyncStorage.removeItem('username');
-    router.replace('/login'); // Navigate to the login page
+    await AsyncStorage.removeItem("access_token");
+    await AsyncStorage.removeItem("refresh_token");
+    await AsyncStorage.removeItem("username");
+    router.replace("/login"); // Navigate to the login page
   };
 
   const renderCardItem = ({ item }) => (
     <TouchableOpacity
       style={styles.cardItem}
-      onPress={() => router.replace('/', )} //{ cardId: item.id }
+      onPress={() => router.replace("/")} //{ cardId: item.id }
     >
       <Text style={styles.cardName}>{item.name}</Text>
       <Text>Set: {item.set}</Text>
@@ -81,7 +84,7 @@ export default function HomeScreen() {
 
       <Button
         title="Upload a New Card"
-        onPress={() => router.replace('/scan')}
+        onPress={() => router.replace("/scan")}
       />
 
       <View style={styles.logoutButton}>
@@ -111,11 +114,11 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
   },
   header: {
     fontSize: 24,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 10,
   },
   subHeader: {
@@ -125,11 +128,11 @@ const styles = StyleSheet.create({
   cardItem: {
     padding: 15,
     borderBottomWidth: 1,
-    borderBottomColor: '#ddd',
+    borderBottomColor: "#ddd",
   },
   cardName: {
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   logoutButton: {
     marginTop: 20,

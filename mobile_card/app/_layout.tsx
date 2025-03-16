@@ -4,20 +4,16 @@ import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { BackHandler, View, StyleSheet } from "react-native";
 
-
-
 function TabsLayout() {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
   const router = useRouter();
 
-
-
   const refreshAuthToken = async () => {
-    const refreshToken = await AsyncStorage.getItem("refreshToken");
+    const refreshToken = await AsyncStorage.getItem("refresh_token");
 
     try {
       const response = await fetch(
-        "http://127.0.0.1:8000/api/token/refresh/",
+        "https://cameras-adolescent-framed-lamps.trycloudflare.com/api/refresh/token/",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -82,17 +78,13 @@ function TabsLayout() {
 
           if (route.name === "index") {
             iconName = focused ? "home" : "home-outline";
-          }
-          else if (route.name === "explore") {
+          } else if (route.name === "explore") {
             iconName = focused ? "folder" : "folder-outline";
-          }
-          else if (route.name === "scan") {
+          } else if (route.name === "scan") {
             iconName = focused ? "camera" : "camera-outline";
-          }
-          else if (route.name === "login") {
+          } else if (route.name === "login") {
             iconName = focused ? "person" : "person-outline";
-          }
-          else {
+          } else {
             iconName = "help-circle";
           }
 
@@ -128,9 +120,5 @@ function TabsLayout() {
 }
 
 export default function Layout() {
-  return (
-
-      <TabsLayout />
-
-  );
+  return <TabsLayout />;
 }
