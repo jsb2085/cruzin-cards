@@ -1,17 +1,17 @@
 import React, { useState } from "react";
-import { View, Text, TextInput, Button, StyleSheet, Alert } from "react-native";
+import { View, Text, TextInput, Button, StyleSheet, Alert, useAnimatedValue } from "react-native";
 import { useRouter } from "expo-router";
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function LoginScreen() {
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
   const handleLogin = async () => {
-    if (!email || !password) {
+    if (!username || !password) {
       Alert.alert("Error", "Please enter both email and password.");
       return;
     }
@@ -20,9 +20,9 @@ export default function LoginScreen() {
 
     try {
       const response = await axios.post(
-        "https://cameras-adolescent-framed-lamps.trycloudflare.com/api/login/",
+        "http://127.0.0.1:8000/api/login/",
         {
-          email,
+          username,
           password,
         }
       );
@@ -31,8 +31,11 @@ export default function LoginScreen() {
 
       await AsyncStorage.setItem("access_token", access);
       await AsyncStorage.setItem("refresh_token", refresh);
+      await AsyncStorage.setItem("username", username);
 
       Alert.alert("Success", "Logged in successfully!");
+      setUsername("")
+      setPassword("")
       router.replace("/");
     } catch (error) {
       console.error("Login failed:", error.response?.data);
@@ -49,11 +52,10 @@ export default function LoginScreen() {
     <View style={styles.container}>
       <Text style={styles.title}>Login</Text>
       <TextInput
-        placeholder="Email"
-        value={email}
-        onChangeText={setEmail}
+        placeholder="Username"
+        value={username}
+        onChangeText={setUsername}
         style={styles.input}
-        keyboardType="email-address"
         autoCapitalize="none"
       />
       <TextInput

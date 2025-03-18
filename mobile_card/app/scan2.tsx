@@ -14,7 +14,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 
 const API_URL =
-  "https://cameras-adolescent-framed-lamps.trycloudflare.com/api/upload/"; // Replace with your backend URL
+  "http://127.0.0.1:8000/api/upload/"; // Replace with your backend URL
 
 export default function UploadCard() {
   const [hasPermission, setHasPermission] = useState(null);

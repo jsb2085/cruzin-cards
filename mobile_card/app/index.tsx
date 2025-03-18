@@ -26,7 +26,7 @@ export default function HomeScreen() {
     try {
       const token = await AsyncStorage.getItem("access_token");
       const response = await axios.get(
-        "https://cameras-adolescent-framed-lamps.trycloudflare.com/api/cards/",
+        "http://127.0.0.1:8000/api/cards/",
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -45,6 +45,7 @@ export default function HomeScreen() {
   // Fetch username from stored token
   const fetchUsername = async () => {
     const username = await AsyncStorage.getItem("username");
+    console.log(username)
     setUsername(username || "User");
   };
 
@@ -54,6 +55,7 @@ export default function HomeScreen() {
   }, []);
 
   const onRefresh = async () => {
+    fetchUsername();
     setRefreshing(true);
     await fetchCards();
     setRefreshing(false);
@@ -79,17 +81,20 @@ export default function HomeScreen() {
   );
 
   return (
-    <View style={styles.container}>
+    <View style={styles.container}
+    >
       <Text style={styles.header}>Welcome, {username}!</Text>
 
       <Button
         title="Upload a New Card"
         onPress={() => router.replace("/scan")}
       />
-
-      <View style={styles.logoutButton}>
+    {username !== "User" ? <View style={styles.logoutButton}>
         <Button title="Logout" color="red" onPress={logout} />
+      </View> : <View style={styles.logoutButton}>
+        <Button title="Login" color="blue" onPress={() => {router.replace("/login")}} />
       </View>
+    }
 
       <Text style={styles.subHeader}>Your Cards:</Text>
 

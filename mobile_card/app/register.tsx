@@ -21,7 +21,7 @@ export default function RegisterScreen() {
 
     try {
       const response = await axios.post(
-        "https://cameras-adolescent-framed-lamps.trycloudflare.com/api/register/",
+        "http://127.0.0.1:8000/api/register/",
         {
           email,
           username,

@@ -56,11 +56,11 @@ class RegisterView(APIView):
 
 class NativeLoginView(APIView):
     def post(self, request):
-        email = request.data.get('email')
+        username = request.data.get('username')
         password = request.data.get('password')
 
         # Authenticate user
-        user = authenticate(request, username=email, password=password)
+        user = authenticate(request, username=username, password=password)
 
         if user is not None:
             refresh = RefreshToken.for_user(user)

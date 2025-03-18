@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-+7$8%z_n&u0ez68!z8*b2&owakok4%c@0a6i$_jluqfaa_n#2f
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['cameras-adolescent-framed-lamps.trycloudflare.com']
+ALLOWED_HOSTS = ['cameras-adolescent-framed-lamps.trycloudflare.com', 'localhost', '127.0.0.1']
 
 
 # Application definition
@@ -65,7 +65,7 @@ CORS_ALLOW_ALL_ORIGINS = True  # Only for development
 from datetime import timedelta
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=50),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=60),
     'ROTATE_REFRESH_TOKENS': True,
     'BLACKLIST_AFTER_ROTATION': True,

@@ -13,7 +13,7 @@ function TabsLayout() {
 
     try {
       const response = await fetch(
-        "https://cameras-adolescent-framed-lamps.trycloudflare.com/api/refresh/token/",
+        "http://127.0.0.1:8000/api/refresh/token/",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -41,7 +41,7 @@ function TabsLayout() {
       const interval = setInterval(async () => {
         console.log("Refreshing token...");
         await refreshAuthToken();
-      }, 14 * 60 * 1000); // Refresh every 14 minutes (adjust as needed)
+      }, 15 * 60 * 1000); // Refresh every 14 minutes (adjust as needed)
 
       return () => clearInterval(interval); // Cleanup on unmount
     }, []);
@@ -112,6 +112,14 @@ function TabsLayout() {
         options={{
           href: null,
           title: "Register",
+          headerLeft: () => backButton,
+        }}
+      />
+      <Tabs.Screen
+        name="card/[id]"
+        options={{
+          href: null,
+          title: "View Card",
           headerLeft: () => backButton,
         }}
       />
