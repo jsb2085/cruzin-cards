@@ -1,4 +1,7 @@
 *.jpg
 db.sqlite3
 mobile_card/node_modules
+mobile_card/package-lock.json
 backend/.env
+.DS_Store
+
