@@ -8,6 +8,9 @@ import {
   Alert,
   ScrollView,
   Platform,
+  Modal,
+  TextInput,
+  Text
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import axios from "axios";
@@ -20,15 +23,18 @@ export default function UploadCard() {
   const [frontImage, setFrontImage] = useState<string | null>(null);
   const [backImage, setBackImage] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [manualInputVisible, setManualInputVisible] = useState(false);
+  const [manualName, setManualName] = useState('');
+  const [manualNumber, setManualNumber] = useState('');
+  const [manualCardImage, setManualCardImage] = useState(null);
+  const [manualCardCompany, setManualCardCompany] = useState('');
 
   // Normalize URI for iOS (remove file:// if necessary)
   const normalizeUri = (uri: string) =>
     Platform.OS === "ios" ? uri.replace("file://", "") : uri;
 
   const pickImage = async (
-    setImage: React.Dispatch<React.SetStateAction<string | null>>,
-    fromLibrary = false
-  ) => {
+    setImage: React.Dispatch<React.SetStateAction<string | null>>, fromLibrary = false) => {
     let permissionResult = fromLibrary
       ? await ImagePicker.requestMediaLibraryPermissionsAsync()
       : await ImagePicker.requestCameraPermissionsAsync();
@@ -54,47 +60,122 @@ export default function UploadCard() {
     }
   };
 
+  const handleManualSubmit = async () => {
+    if (!manualName || !manualNumber) {
+      Alert.alert('Error', 'Both name and number must be provided.');
+      return;
+    }
+  
+    const formData = new FormData();
+    formData.append('name', manualName);
+    formData.append('number', manualNumber);
+    formData.append('image_id', manualCardImage);
+    formData.append('card_company', manualCardCompany);
+  
+    try {
+      const response = await axios.post(`${API_URL}manual/`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+  
+      if (response.data === 'manual') {
+        Alert.alert('Error', 'Invalid input. Please try again.');
+      } else {
+        Alert.alert('Success', 'Card created successfully!');
+        setManualInputVisible(false);
+      }
+    } catch (error) {
+      console.error('Manual input error:', error.response?.data || error.message);
+      Alert.alert('Error', `Manual input failed: ${JSON.stringify(error.response?.data || error.message)}`);
+    }
+  };
+
+  const refreshAccessToken = async () => {
+    try {
+      const refreshToken = await AsyncStorage.getItem("refresh_token");
+      if (!refreshToken) {
+        throw new Error("No refresh token available");
+      }
+  
+      const response = await axios.post("http://127.0.0.1:8000/api/token/refresh/", {
+        refresh: refreshToken,
+      });
+  
+      const { access } = response.data;
+      await AsyncStorage.setItem("access_token", access);
+      return access;
+    } catch (error) {
+      console.error("Token refresh error:", error.response?.data || error.message);
+      throw error;
+    }
+  };
+
   const uploadImages = async () => {
     if (!frontImage || !backImage) {
       Alert.alert("Error", "Both images must be selected before uploading.");
       return;
     }
-
+  
     const formData = new FormData();
-
-    formData.append("card_front_image", {
-      uri: normalizeUri(frontImage),
-      name: "front.jpg",
+  
+    formData.append("card_front_image", new File([normalizeUri(frontImage)], "front.jpg", {
       type: "image/jpeg",
-    });
-
-    formData.append("card_back_image", {
-      uri: normalizeUri(backImage),
-      name: "back.jpg",
+    }));
+  
+    formData.append("card_back_image", new File([normalizeUri(backImage)], "back.jpg", {
       type: "image/jpeg",
-    });
-
+    }));
+  
     setUploading(true);
     try {
-      const token = await AsyncStorage.getItem("access_token");
+      let token = await AsyncStorage.getItem("access_token");
       console.log(token);
+  
       const response = await axios.post(API_URL, formData, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "multipart/form-data",
         },
       });
-
-      console.log("Upload success:", response.data);
-      Alert.alert("Success", "Images uploaded successfully!");
+  
+      if (response.data.status === 'manual') {
+        setManualName(response.data.extracted_name);
+        setManualNumber(response.data.extracted_number);
+        setManualCardImage(response.data.image_id);
+        setManualCardCompany(response.data.card_company);
+        setManualInputVisible(true);
+      } else {
+        Alert.alert('Success', 'Images uploaded successfully!');
+      }
     } catch (error) {
-      console.error("Upload error:", error.response?.data || error.message);
-      Alert.alert(
-        "Error",
-        `Upload failed: ${JSON.stringify(
-          error.response?.data || error.message
-        )}`
-      );
+      if (error.response?.data?.code === "token_not_valid") {
+        try {
+          const newToken = await refreshAccessToken();
+          const response = await axios.post(API_URL, formData, {
+            headers: {
+              Authorization: `Bearer ${newToken}`,
+              "Content-Type": "multipart/form-data",
+            },
+          });
+  
+          if (response.data.status === 'manual') {
+            setManualName(response.data.extracted_name);
+            setManualNumber(response.data.extracted_number);
+            setManualCardImage(response.data.image_id);
+            setManualCardCompany(response.data.card_company);
+            setManualInputVisible(true);
+          } else {
+            Alert.alert('Success', 'Images uploaded successfully!');
+          }
+        } catch (refreshError) {
+          console.error("Upload error after token refresh:", refreshError.response?.data || refreshError.message);
+          Alert.alert("Error", `Upload failed after token refresh: ${JSON.stringify(refreshError.response?.data || refreshError.message)}`);
+        }
+      } else {
+        console.error("Upload error:", error.response?.data || error.message);
+        Alert.alert("Error", `Upload failed: ${JSON.stringify(error.response?.data || error.message)}`);
+      }
     } finally {
       setUploading(false);
     }
@@ -136,6 +217,28 @@ export default function UploadCard() {
         )}
 
         {uploading && <ActivityIndicator size="large" color="#0000ff" />}
+
+        <Modal visible={manualInputVisible} transparent={true} animationType="slide">
+                  <View style={styles.modalContainer}>
+                    <View style={styles.modalContent}>
+                      <Text style={styles.modalTitle}>Unrecognized {manualCardCompany} card:</Text>
+                      <TextInput
+                        style={styles.input}
+                        placeholder="Name"
+                        value={manualName}
+                        onChangeText={setManualName}
+                      />
+                      <TextInput
+                        style={styles.input}
+                        placeholder="Number"
+                        value={manualNumber}
+                        onChangeText={setManualNumber}
+                      />
+                      <Button title="Submit" onPress={handleManualSubmit} />
+                      <Button title="Cancel" onPress={() => setManualInputVisible(false)} />
+                    </View>
+                  </View>
+                </Modal>
       </View>
     </ScrollView>
   );
@@ -158,5 +261,30 @@ const styles = StyleSheet.create({
     elevation: 0, // Remove Android shadows
     resizeMode: "cover", // Ensures the image fills the frame
     overflow: "hidden", // Ensures content doesn't spill over
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContent: {
+    width: '80%',
+    padding: 20,
+    backgroundColor: 'white',
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+  modalTitle: {
+    fontSize: 18,
+    marginBottom: 10,
+  },
+  input: {
+    width: '100%',
+    padding: 10,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 5,
+    marginBottom: 10,
   },
 });

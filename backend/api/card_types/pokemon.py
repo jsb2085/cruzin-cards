@@ -24,7 +24,7 @@ def pokemon_name_and_set_number(card_name, set_number):
             return data['data']
         else:
             print(f"No cards found for '{card_name}' with set number {set_number}.")
-            return "manual"
+            return None
     else:
         return f"Error: {response.status_code}"
     

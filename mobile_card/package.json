@@ -17,7 +17,10 @@
   "dependencies": {
     "@expo/vector-icons": "^14.0.2",
     "@react-native-async-storage/async-storage": "^2.1.2",
+<<<<<<< HEAD
+=======
     "@react-native-picker/picker": "^2.11.0",
+>>>>>>> 298a1d1333b9c599a38e205469ebb543183a6fd7
     "@react-navigation/bottom-tabs": "^7.2.0",
     "@react-navigation/native": "^7.0.14",
     "axios": "^1.8.2",

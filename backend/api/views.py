@@ -107,7 +107,7 @@ class CardImageUploadView(APIView):
             if "MAGIC" in extracted_text:
                 magic_card = ai_name_year_magic(extracted_text)
                 magic_info = magic_name_and_year(magic_card.name, magic_card.year)
-                if magic_info == "manual":
+                if magic_info == None:
                     return Response({
                         'status': 'manual',
                         'extracted_name': magic_card.name,
@@ -128,7 +128,7 @@ class CardImageUploadView(APIView):
             elif "Pokémon" in extracted_text:
                 pokemon_card = ai_name_set_number_pokemon(extracted_text)
                 pokemon_info = pokemon_name_and_set_number(pokemon_card.name, pokemon_card.set_number)
-                if pokemon_info == "manual":
+                if pokemon_info == None:
                     return Response({
                         'status': 'manual',
                         'extracted_name': pokemon_card.name,
@@ -187,7 +187,7 @@ class ManualCardCreateView(APIView):
 
         if card_company == "Magic the Gathering":
             magic_info = magic_name_and_year(name, number)
-            if magic_info == "manual":
+            if magic_info == None:
                 return Response({
                     'status': 'manual',
                     'extracted_name': name,
@@ -207,7 +207,7 @@ class ManualCardCreateView(APIView):
 
         elif card_company == "Pokémon":
             pokemon_info = pokemon_name_and_set_number(name, number)
-            if pokemon_info == "manual":
+            if pokemon_info == None:
                 return Response({
                     'status': 'manual',
                     'extracted_name': name,

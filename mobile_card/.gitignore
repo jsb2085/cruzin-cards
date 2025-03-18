@@ -30,9 +30,41 @@ yarn-error.*
 *.pem
 
 # local env files
+.env
 .env*.local
 
 # typescript
 *.tsbuildinfo
 
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg
+*.egg-info/
+*.pytest_cache/
+*.coverage
+.coverage.*
+
+# Logs
+*.log
+*.log.*
+
+# IDEs and editors
+.vscode/
+.idea/
+*.swp
+*.swo
+*.swn
+*.bak
+*.tmp
+
+# Build artifacts
+build/
+out/
+coverage/
+*.lock
+
+# Example files
 app-example
