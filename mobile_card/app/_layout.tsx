@@ -2,23 +2,18 @@ import React, { useEffect, useState } from "react";
 import { Tabs, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import * as SystemUI from "expo-system-ui";
 import { BackHandler, View, StyleSheet } from "react-native";
-import { useNavigation } from "@react-navigation/native";
-
 
 function TabsLayout() {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
   const router = useRouter();
 
-
-
   const refreshAuthToken = async () => {
-    const refreshToken = await AsyncStorage.getItem("refreshToken");
+    const refreshToken = await AsyncStorage.getItem("refresh_token");
 
     try {
       const response = await fetch(
-        "http://127.0.0.1:8000/api/token/refresh/",
+        "http://127.0.0.1:8000/api/refresh/token/",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -46,7 +41,7 @@ function TabsLayout() {
       const interval = setInterval(async () => {
         console.log("Refreshing token...");
         await refreshAuthToken();
-      }, 14 * 60 * 1000); // Refresh every 14 minutes (adjust as needed)
+      }, 15 * 60 * 1000); // Refresh every 14 minutes (adjust as needed)
 
       return () => clearInterval(interval); // Cleanup on unmount
     }, []);
@@ -83,6 +78,12 @@ function TabsLayout() {
 
           if (route.name === "index") {
             iconName = focused ? "home" : "home-outline";
+          } else if (route.name === "explore") {
+            iconName = focused ? "folder" : "folder-outline";
+          } else if (route.name === "scan") {
+            iconName = focused ? "camera" : "camera-outline";
+          } else if (route.name === "login") {
+            iconName = focused ? "person" : "person-outline";
           } else {
             iconName = "help-circle";
           }
@@ -103,8 +104,9 @@ function TabsLayout() {
       })}
     >
       <Tabs.Screen name="login" options={{ title: "Login" }} />
-      <Tabs.Screen name="explore" options={{ title: "Explore" }} />
+      <Tabs.Screen name="explore" options={{ title: "My Cards" }} />
       <Tabs.Screen name="index" options={{ title: "Home" }} />
+      <Tabs.Screen name="scan" options={{ title: "Scan Card" }} />
       <Tabs.Screen
         name="register"
         options={{
@@ -113,14 +115,18 @@ function TabsLayout() {
           headerLeft: () => backButton,
         }}
       />
+      <Tabs.Screen
+        name="card/[id]"
+        options={{
+          href: null,
+          title: "View Card",
+          headerLeft: () => backButton,
+        }}
+      />
     </Tabs>
   );
 }
 
 export default function Layout() {
-  return (
-
-      <TabsLayout />
-
-  );
+  return <TabsLayout />;
 }

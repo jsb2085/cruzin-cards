@@ -3,5 +3,8 @@ db.sqlite3
 mobile_card/node_modules
 mobile_card/package-lock.json
 backend/.env
+<<<<<<< HEAD
 .DS_Store
+=======
+>>>>>>> 298a1d1333b9c599a38e205469ebb543183a6fd7
 
