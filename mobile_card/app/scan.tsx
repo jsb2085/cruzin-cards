@@ -90,36 +90,54 @@ export default function UploadCard() {
     }
   };
 
+  const refreshAccessToken = async () => {
+    try {
+      const refreshToken = await AsyncStorage.getItem("refresh_token");
+      if (!refreshToken) {
+        throw new Error("No refresh token available");
+      }
+  
+      const response = await axios.post("http://127.0.0.1:8000/api/token/refresh/", {
+        refresh: refreshToken,
+      });
+  
+      const { access } = response.data;
+      await AsyncStorage.setItem("access_token", access);
+      return access;
+    } catch (error) {
+      console.error("Token refresh error:", error.response?.data || error.message);
+      throw error;
+    }
+  };
+
   const uploadImages = async () => {
     if (!frontImage || !backImage) {
       Alert.alert("Error", "Both images must be selected before uploading.");
       return;
     }
-
+  
     const formData = new FormData();
-
-    formData.append("card_front_image", {
-      uri: normalizeUri(frontImage),
-      name: "front.jpg",
+  
+    formData.append("card_front_image", new File([normalizeUri(frontImage)], "front.jpg", {
       type: "image/jpeg",
-    });
-
-    formData.append("card_back_image", {
-      uri: normalizeUri(backImage),
-      name: "back.jpg",
+    }));
+  
+    formData.append("card_back_image", new File([normalizeUri(backImage)], "back.jpg", {
       type: "image/jpeg",
-    });
-
+    }));
+  
     setUploading(true);
     try {
-      const token = await AsyncStorage.getItem("access_token");
+      let token = await AsyncStorage.getItem("access_token");
       console.log(token);
+  
       const response = await axios.post(API_URL, formData, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "multipart/form-data",
         },
       });
+  
       if (response.data.status === 'manual') {
         setManualName(response.data.extracted_name);
         setManualNumber(response.data.extracted_number);
@@ -130,13 +148,33 @@ export default function UploadCard() {
         Alert.alert('Success', 'Images uploaded successfully!');
       }
     } catch (error) {
-      console.error("Upload error:", error.response?.data || error.message);
-      Alert.alert(
-        "Error",
-        `Upload failed: ${JSON.stringify(
-          error.response?.data || error.message
-        )}`
-      );
+      if (error.response?.data?.code === "token_not_valid") {
+        try {
+          const newToken = await refreshAccessToken();
+          const response = await axios.post(API_URL, formData, {
+            headers: {
+              Authorization: `Bearer ${newToken}`,
+              "Content-Type": "multipart/form-data",
+            },
+          });
+  
+          if (response.data.status === 'manual') {
+            setManualName(response.data.extracted_name);
+            setManualNumber(response.data.extracted_number);
+            setManualCardImage(response.data.image_id);
+            setManualCardCompany(response.data.card_company);
+            setManualInputVisible(true);
+          } else {
+            Alert.alert('Success', 'Images uploaded successfully!');
+          }
+        } catch (refreshError) {
+          console.error("Upload error after token refresh:", refreshError.response?.data || refreshError.message);
+          Alert.alert("Error", `Upload failed after token refresh: ${JSON.stringify(refreshError.response?.data || refreshError.message)}`);
+        }
+      } else {
+        console.error("Upload error:", error.response?.data || error.message);
+        Alert.alert("Error", `Upload failed: ${JSON.stringify(error.response?.data || error.message)}`);
+      }
     } finally {
       setUploading(false);
     }
