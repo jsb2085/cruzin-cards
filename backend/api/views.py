@@ -86,6 +86,7 @@ class CardImageUploadView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request, format=None):
+        print(request.data)
         serializer = CardImageSerializer(data=request.data)
 
         if serializer.is_valid():
@@ -103,6 +104,8 @@ class CardImageUploadView(APIView):
             extracted_text = extract_text_from_image(card_image.combined_image.path)
             card_image.extracted_text = extracted_text
             card_image.save()
+
+            print(extracted_text)
 
             if "MAGIC" in extracted_text:
                 magic_card = ai_name_year_magic(extracted_text)
@@ -167,8 +170,9 @@ class CardImageUploadView(APIView):
             card.save()
 
             return Response(CardSerializer(card).data, status=status.HTTP_201_CREATED)
-
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            print(serializer.errors)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class ManualCardCreateView(APIView):
     def post(self, request, format=None):
