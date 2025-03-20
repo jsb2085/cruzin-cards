@@ -16,13 +16,13 @@ class PokemonCard(BaseModel):
 
 def pokemon_name_and_set_number(card_name, set_number):
     base_url = "https://api.pokemontcg.io/v2/cards"
-    # Initialize SymSpell
+    # Match name to most similar card name in the database
     sym_spell = SymSpell(max_dictionary_edit_distance=2)
     sym_spell.load_dictionary("card_names.txt", term_index=0, count_index=1)
-
     suggestions = sym_spell.lookup(card_name, verbosity=2, max_edit_distance=2)
     if suggestions:
         card_name = suggestions[0].term
+
     query = f'name:"{card_name}"'
     params = {'q': query}
     response = requests.get(base_url, params=params)

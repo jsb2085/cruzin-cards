@@ -219,12 +219,18 @@ export default function UploadCard() {
                 value={manualName}
                 onChangeText={setManualName}
               />
+              <Text style={styles.formatting}>Name formatting:</Text>
+              <Text style={styles.formatting}>M/Mega [Name]-EX/GX</Text>
+              <Text style={styles.formatting}>[Name] LV.X/G LV.X/V/V-Union/VMAX/VSTAR/BREAK/LEGEND</Text>
               <TextInput
                 style={styles.input}
                 placeholder="Number"
                 value={manualNumber}
                 onChangeText={setManualNumber}
               />
+              <Text style={styles.formatting}>Number formatting:</Text>
+              <Text style={styles.formatting}>Include set letters (XY, SWSH, etc.)</Text>
+              <Text style={styles.formatting}>Do not include set total (147/190 → 147)</Text>
               <Button title="Submit" onPress={handleManualSubmit} />
               <Button title="Cancel" onPress={() => setManualInputVisible(false)} />
             </View>
@@ -276,6 +282,12 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#ccc',
     borderRadius: 5,
-    marginBottom: 10,
+    marginTop: 10,
   },
+  formatting: {
+    fontSize: 9,
+    color: 'gray',
+    textAlign: 'left',
+    width: '100%',
+  }
 });

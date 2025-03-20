@@ -213,6 +213,7 @@ class ManualCardCreateView(APIView):
                 )
 
         elif card_company == "Pokémon":
+            number = number.split('/')[0] # Remove the total number of cards in the set
             pokemon_info = pokemon_name_and_set_number(name, number)
             if pokemon_info == None:
                 return Response({
