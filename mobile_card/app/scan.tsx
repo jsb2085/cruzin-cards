@@ -1,23 +1,22 @@
-import React, { useState } from "react";
-import {
-  View,
-  Button,
-  Image,
-  StyleSheet,
-  ActivityIndicator,
-  Alert,
-  ScrollView,
-  Platform,
-  Modal,
-  TextInput,
-  Text
-} from "react-native";
-import * as ImagePicker from "expo-image-picker";
-import axios from "axios";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import React, { useState } from 'react';
+import { 
+  View, 
+  Button, 
+  Image, 
+  StyleSheet, 
+  ActivityIndicator, 
+  Alert, 
+  ScrollView, 
+  Platform, 
+  Modal, 
+  TextInput, 
+  Text 
+} from 'react-native';
+import * as ImagePicker from 'expo-image-picker';
+import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const API_URL =
-  "http://127.0.0.1:8000/api/upload/"; // Replace with your local network IP address
+const API_URL = 'http://127.0.0.1:8000/api/upload/'; // Replace with your local network IP address
 
 export default function UploadCard() {
   const [frontImage, setFrontImage] = useState<string | null>(null);
@@ -30,8 +29,8 @@ export default function UploadCard() {
   const [manualCardCompany, setManualCardCompany] = useState('');
 
   // Normalize URI for iOS (remove file:// if necessary)
-  const normalizeUri = (uri: string) =>
-    Platform.OS === "ios" ? uri.replace("file://", "") : uri;
+  const normalizeUri = (uri: string) => 
+    (Platform.OS === 'ios' ? uri.replace('file://', '') : uri);
 
   const pickImage = async (
     setImage: React.Dispatch<React.SetStateAction<string | null>>, fromLibrary = false) => {
@@ -39,8 +38,8 @@ export default function UploadCard() {
       ? await ImagePicker.requestMediaLibraryPermissionsAsync()
       : await ImagePicker.requestCameraPermissionsAsync();
 
-    if (permissionResult.status !== "granted") {
-      alert("Permission to access media is required!");
+    if (permissionResult.status !== 'granted') {
+      alert('Permission to access media is required!');
       return;
     }
 
@@ -73,13 +72,19 @@ export default function UploadCard() {
     formData.append('card_company', manualCardCompany);
   
     try {
+      const token = await AsyncStorage.getItem("access_token");
+      if (!token) {
+        throw new Error("No access token available");
+      }
+  
       const response = await axios.post(`${API_URL}manual/`, formData, {
         headers: {
+          Authorization: `Bearer ${token}`, // Include the access token
           'Content-Type': 'multipart/form-data',
         },
       });
   
-      if (response.data === 'manual') {
+      if (response.data.status === 'manual') {
         Alert.alert('Error', 'Invalid input. Please try again.');
       } else {
         Alert.alert('Success', 'Card created successfully!');
@@ -119,34 +124,40 @@ export default function UploadCard() {
   
     const formData = new FormData();
   
-    formData.append("card_front_image", new File([normalizeUri(frontImage)], "front.jpg", {
+    formData.append("card_front_image", {
+      uri: normalizeUri(frontImage),
       type: "image/jpeg",
-    }));
+      name: "front.jpg",
+    } as any);
   
-    formData.append("card_back_image", new File([normalizeUri(backImage)], "back.jpg", {
+    formData.append("card_back_image", {
+      uri: normalizeUri(backImage),
       type: "image/jpeg",
-    }));
+      name: "back.jpg",
+    } as any);
   
     setUploading(true);
     try {
-      let token = await AsyncStorage.getItem("access_token");
-      console.log(token);
+      const token = await AsyncStorage.getItem("access_token");
+      if (!token) {
+        throw new Error("No access token available");
+      }
   
       const response = await axios.post(API_URL, formData, {
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${token}`, // Include the access token
           "Content-Type": "multipart/form-data",
         },
       });
   
-      if (response.data.status === 'manual') {
+      if (response.data.status === "manual") {
         setManualName(response.data.extracted_name);
         setManualNumber(response.data.extracted_number);
         setManualCardImage(response.data.image_id);
         setManualCardCompany(response.data.card_company);
         setManualInputVisible(true);
       } else {
-        Alert.alert('Success', 'Images uploaded successfully!');
+        Alert.alert("Success", "Images uploaded successfully!");
       }
     } catch (error) {
       if (error.response?.data?.code === "token_not_valid") {
@@ -154,19 +165,19 @@ export default function UploadCard() {
           const newToken = await refreshAccessToken();
           const response = await axios.post(API_URL, formData, {
             headers: {
-              Authorization: `Bearer ${newToken}`,
+              Authorization: `Bearer ${newToken}`, // Use the refreshed token
               "Content-Type": "multipart/form-data",
             },
           });
   
-          if (response.data.status === 'manual') {
+          if (response.data.status === "manual") {
             setManualName(response.data.extracted_name);
             setManualNumber(response.data.extracted_number);
             setManualCardImage(response.data.image_id);
             setManualCardCompany(response.data.card_company);
             setManualInputVisible(true);
           } else {
-            Alert.alert('Success', 'Images uploaded successfully!');
+            Alert.alert("Success", "Images uploaded successfully!");
           }
         } catch (refreshError) {
           console.error("Upload error after token refresh:", refreshError.response?.data || refreshError.message);
@@ -184,61 +195,41 @@ export default function UploadCard() {
   return (
     <ScrollView>
       <View style={styles.container}>
-        <Button
-          title="Take Front Image"
-          onPress={() => pickImage(setFrontImage)}
-        />
-        <Button
-          title="Select Front Image from Gallery"
-          onPress={() => pickImage(setFrontImage, true)}
-        />
-        {frontImage && (
-          <Image source={{ uri: frontImage }} style={styles.image} />
-        )}
+        <Button title="Take Front Image" onPress={() => pickImage(setFrontImage)} />
+        <Button title="Select Front Image from Gallery" onPress={() => pickImage(setFrontImage, true)} />
+        {frontImage && <Image source={{ uri: frontImage }} style={styles.image} />}
 
-        <Button
-          title="Take Back Image"
-          onPress={() => pickImage(setBackImage)}
-        />
-        <Button
-          title="Select Back Image from Gallery"
-          onPress={() => pickImage(setBackImage, true)}
-        />
-        {backImage && (
-          <Image source={{ uri: backImage }} style={styles.image} />
-        )}
+        <Button title="Take Back Image" onPress={() => pickImage(setBackImage)} />
+        <Button title="Select Back Image from Gallery" onPress={() => pickImage(setBackImage, true)} />
+        {backImage && <Image source={{ uri: backImage }} style={styles.image} />}
 
         {frontImage && backImage && (
-          <Button
-            title="Upload to Backend"
-            onPress={uploadImages}
-            disabled={uploading}
-          />
+          <Button title="Upload to Backend" onPress={uploadImages} disabled={uploading} />
         )}
 
         {uploading && <ActivityIndicator size="large" color="#0000ff" />}
 
         <Modal visible={manualInputVisible} transparent={true} animationType="slide">
-                  <View style={styles.modalContainer}>
-                    <View style={styles.modalContent}>
-                      <Text style={styles.modalTitle}>Unrecognized {manualCardCompany} card:</Text>
-                      <TextInput
-                        style={styles.input}
-                        placeholder="Name"
-                        value={manualName}
-                        onChangeText={setManualName}
-                      />
-                      <TextInput
-                        style={styles.input}
-                        placeholder="Number"
-                        value={manualNumber}
-                        onChangeText={setManualNumber}
-                      />
-                      <Button title="Submit" onPress={handleManualSubmit} />
-                      <Button title="Cancel" onPress={() => setManualInputVisible(false)} />
-                    </View>
-                  </View>
-                </Modal>
+          <View style={styles.modalContainer}>
+            <View style={styles.modalContent}>
+              <Text style={styles.modalTitle}>Unrecognized {manualCardCompany} card:</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="Name"
+                value={manualName}
+                onChangeText={setManualName}
+              />
+              <TextInput
+                style={styles.input}
+                placeholder="Number"
+                value={manualNumber}
+                onChangeText={setManualNumber}
+              />
+              <Button title="Submit" onPress={handleManualSubmit} />
+              <Button title="Cancel" onPress={() => setManualInputVisible(false)} />
+            </View>
+          </View>
+        </Modal>
       </View>
     </ScrollView>
   );
@@ -247,8 +238,8 @@ export default function UploadCard() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
     padding: 80,
   },
   image: {
@@ -257,10 +248,10 @@ const styles = StyleSheet.create({
     marginVertical: 20,
     borderRadius: 8,
     borderWidth: 0, // Remove borders
-    shadowColor: "transparent", // Remove iOS shadows
+    shadowColor: 'transparent', // Remove iOS shadows
     elevation: 0, // Remove Android shadows
-    resizeMode: "cover", // Ensures the image fills the frame
-    overflow: "hidden", // Ensures content doesn't spill over
+    resizeMode: 'cover', // Ensures the image fills the frame
+    overflow: 'hidden', // Ensures content doesn't spill over
   },
   modalContainer: {
     flex: 1,

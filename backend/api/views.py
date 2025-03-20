@@ -200,14 +200,17 @@ class ManualCardCreateView(APIView):
                     'image_id': image_id
                 }, status=status.HTTP_200_OK)
             card = Card.objects.create(
-                name=magic_info[0]['name'],
-                set=magic_info[0]['set_name'],
-                number=magic_info[0]['collector_number'],
-                card_company="Magic the Gathering",
-                numeration="None",
-                autograph=False,
-                card_image=card_image
-            )
+                    owner=self.request.user,
+                    name=magic_info[0]['name'],
+                    set=magic_info[0]['set_name'],
+                    number=magic_info[0]['collector_number'],
+                    card_company="Magic the Gathering",
+                    numeration="None",
+                    autograph=False,
+                    card_image=card_image,
+                    is_graded=False,
+                    grade_company="None"
+                )
 
         elif card_company == "Pokémon":
             pokemon_info = pokemon_name_and_set_number(name, number)
@@ -220,13 +223,16 @@ class ManualCardCreateView(APIView):
                     'image_id': image_id
                 }, status=status.HTTP_200_OK)
             card = Card.objects.create(
+                owner=self.request.user,
                 name=pokemon_info[0]['name'],
                 set=pokemon_info[0]['set']['name'],
                 number=f'{number}/{pokemon_info[0]["set"]["printedTotal"]}',
                 card_company="Pokémon",
                 numeration="None",
                 autograph=False,
-                card_image=card_image
+                card_image=card_image,
+                is_graded=False,
+                grade_company="None"
             )
 
         return Response(CardSerializer(card).data, status=status.HTTP_201_CREATED)
