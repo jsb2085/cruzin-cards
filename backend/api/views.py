@@ -86,6 +86,7 @@ class CardImageUploadView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request, format=None):
+        print(request.data)
         serializer = CardImageSerializer(data=request.data)
 
         if serializer.is_valid():
@@ -103,6 +104,8 @@ class CardImageUploadView(APIView):
             extracted_text = extract_text_from_image(card_image.combined_image.path)
             card_image.extracted_text = extracted_text
             card_image.save()
+
+            print(extracted_text)
 
             if "MAGIC" in extracted_text:
                 magic_card = ai_name_year_magic(extracted_text)
@@ -167,8 +170,9 @@ class CardImageUploadView(APIView):
             card.save()
 
             return Response(CardSerializer(card).data, status=status.HTTP_201_CREATED)
-
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            print(serializer.errors)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class ManualCardCreateView(APIView):
     def post(self, request, format=None):
@@ -196,14 +200,17 @@ class ManualCardCreateView(APIView):
                     'image_id': image_id
                 }, status=status.HTTP_200_OK)
             card = Card.objects.create(
-                name=magic_info[0]['name'],
-                set=magic_info[0]['set_name'],
-                number=magic_info[0]['collector_number'],
-                card_company="Magic the Gathering",
-                numeration="None",
-                autograph=False,
-                card_image=card_image
-            )
+                    owner=self.request.user,
+                    name=magic_info[0]['name'],
+                    set=magic_info[0]['set_name'],
+                    number=magic_info[0]['collector_number'],
+                    card_company="Magic the Gathering",
+                    numeration="None",
+                    autograph=False,
+                    card_image=card_image,
+                    is_graded=False,
+                    grade_company="None"
+                )
 
         elif card_company == "Pokémon":
             pokemon_info = pokemon_name_and_set_number(name, number)
@@ -216,13 +223,16 @@ class ManualCardCreateView(APIView):
                     'image_id': image_id
                 }, status=status.HTTP_200_OK)
             card = Card.objects.create(
+                owner=self.request.user,
                 name=pokemon_info[0]['name'],
                 set=pokemon_info[0]['set']['name'],
                 number=f'{number}/{pokemon_info[0]["set"]["printedTotal"]}',
                 card_company="Pokémon",
                 numeration="None",
                 autograph=False,
-                card_image=card_image
+                card_image=card_image,
+                is_graded=False,
+                grade_company="None"
             )
 
         return Response(CardSerializer(card).data, status=status.HTTP_201_CREATED)
