@@ -1,6 +1,6 @@
 from django.urls import path
 from .views import RetrieveCardPrice, CardShopListCreateView, CardShopRetrieveUpdateDestroyView, CardListCreateView, CardRetrieveUpdateDestroyView, CardImageUploadView, NativeLoginView, RegisterView, ManualCardCreateView, UserDetailView
-from rest_framework_simplejwt.views import TokenRefreshView
+from rest_framework_simplejwt.views import TokenRefreshView, TokenObtainPairView
 
 
 
