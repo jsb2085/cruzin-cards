@@ -8,7 +8,7 @@ All of this will be done in /backend
 1. Create .env file. Add GROQ_API_KEY={your-groq-key} (Should be in /backend)
 2. Start your virtual environment and install requirements
     - python3 -m venv venv
-    - source venv/bin/active
+    - source venv/bin/activate
     - pip install -r requirements.txt
 3. Setup Google cloud
     - Go to google cloud

@@ -32,9 +32,12 @@ class Card(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    def __str__(self):
+        return f"{self.name} {self.set} {self.number}"
+
 class CardShop(models.Model):
     id = models.BigAutoField(primary_key=True)
-    owner = models.OneToOneField(User, on_delete=models.CASCADE, related_name='card_shop')
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='card_shop')
     name = models.CharField(max_length=100)
     description = models.TextField(null=True, blank=True)
     address = models.CharField(max_length=255)

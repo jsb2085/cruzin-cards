@@ -1,11 +1,11 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from rest_framework import generics, status, permissions
-from .models import Card, CardImage
-from .serializers import CardImageSerializer, CardSerializer
+from .models import Card, CardImage, CardShop
+from .serializers import CardImageSerializer, CardSerializer, UserSerializer, CardShopSerializer
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.core.files.base import ContentFile
-import cv2
+import cv2, os, json, requests
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth.models import User
@@ -15,6 +15,7 @@ from .ai_card.card_to_text import combine_images, extract_text_from_image  # Ens
 from .ai_card.text_to_card import create_card
 from .card_types.magic import ai_name_year_magic, magic_name_and_year
 from .card_types.pokemon import ai_name_set_number_pokemon, pokemon_name_and_set_number
+from .card_types.price_scraper import get_ebay_prices
 
 
 class RegisterView(APIView):
@@ -79,6 +80,7 @@ class CardListCreateView(generics.ListCreateAPIView):
         return Card.objects.filter(owner=self.request.user)
 
 class CardRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
+    permission_classes = [permissions.IsAuthenticated]
     queryset = Card.objects.all()
     serializer_class = CardSerializer
 
@@ -237,3 +239,109 @@ class ManualCardCreateView(APIView):
             )
 
         return Response(CardSerializer(card).data, status=status.HTTP_201_CREATED)
+
+
+class UserDetailView(generics.RetrieveAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = UserSerializer
+
+    def get_object(self):
+        return self.request.user
+
+
+class CardShopListCreateView(generics.ListCreateAPIView):
+    """
+    Handles listing and creating card shops for the authenticated user.
+    """
+    serializer_class = CardShopSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        """Return only the card shops owned by the authenticated user."""
+        return CardShop.objects.filter(owner=self.request.user)
+
+    def perform_create(self, serializer):
+        """Assign the logged-in user as the owner when creating a shop."""
+        serializer.save(owner=self.request.user)
+
+class CardShopRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
+    """
+    Handles retrieving, updating, and deleting a specific card shop.
+    Only the owner can update or delete their shop.
+    """
+    serializer_class = CardShopSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        """Ensure users can only access their own shops."""
+        return CardShop.objects.filter(owner=self.request.user)
+
+class RetrieveCardPrice(generics.RetrieveAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = CardSerializer
+
+    def load_card_prices(self):
+        if os.path.exists("prices.json"):
+            with open("prices.json", "r") as f:
+                return json.load(f)
+        return {}
+
+    def save_card_prices(self, card_prices):
+        """Save updated card prices to JSON file."""
+        with open("prices.json", "w") as f:
+            json.dump(card_prices, f, indent=4)
+
+    def retrieve(self, request, *args, **kwargs):
+        card_id = kwargs.get("pk")
+        card = get_object_or_404(Card, pk=card_id)
+
+        # Extract required details
+        card_company = card.card_company
+        card_name = card.name
+        card_number = card.number
+        card_set = card.set
+
+        # Fetch price from external API
+        price_data = self.fetch_card_price(card_company, card_name, card_number, card_set)
+
+        return Response({"price": price_data})
+
+    def fetch_card_price(self, company, name, number, set):
+
+        if company == "Pokémon":
+            number = number.split("/")[0]
+            base_url = "https://api.pokemontcg.io/v2/cards"
+            query = f'name:"{name}" number:"{number}"'
+            params = {'q': query}
+            response = requests.get(base_url, params=params)
+            if response.status_code == 200:
+                data = response.json()
+                if data['totalCount'] > 0:
+                    card = data['data']
+                    print(card)
+                else:
+                    print(f"No cards found for '{name}' with set number {number}.")
+            return card[0]["cardmarket"]["prices"]["averageSellPrice"]
+
+        else:
+            card_prices = self.load_card_prices()
+
+            card_key = f"{name} {set} {number}"  # Unique key for the card
+
+            if card_key in card_prices:
+                print(f"Price found in JSON: {card_prices[card_key]}")
+                return card_prices[card_key]
+            else:
+                print(f"Fetching price for {name}...")
+
+                search_query = f"{name} {set} {number}"
+                price = get_ebay_prices(search_query)
+
+                if price:
+                    card_prices[card_key] = price
+                    self.save_card_prices(card_prices)
+                    print(f"Price added to JSON: {price}")
+                else:
+                    print(f"Failed to fetch price for {name}.")
+
+                return price

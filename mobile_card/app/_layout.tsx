@@ -82,8 +82,10 @@ function TabsLayout() {
             iconName = focused ? "folder" : "folder-outline";
           } else if (route.name === "scan") {
             iconName = focused ? "camera" : "camera-outline";
-          } else if (route.name === "login") {
+          } else if (route.name === "profile") {
             iconName = focused ? "person" : "person-outline";
+          } else if (route.name === "login") {
+            iconName = focused ? "log-in" : "log-in-outline";
           } else {
             iconName = "help-circle";
           }
@@ -107,6 +109,7 @@ function TabsLayout() {
       <Tabs.Screen name="explore" options={{ title: "My Cards" }} />
       <Tabs.Screen name="index" options={{ title: "Home" }} />
       <Tabs.Screen name="scan" options={{ title: "Scan Card" }} />
+      <Tabs.Screen name="profile" options={{ title: "Profile" }} />
       <Tabs.Screen
         name="register"
         options={{
@@ -120,6 +123,14 @@ function TabsLayout() {
         options={{
           href: null,
           title: "View Card",
+          headerLeft: () => backButton,
+        }}
+      />
+      <Tabs.Screen
+        name="add_cardshop"
+        options={{
+          href: null,
+          title: "Add Cardshop",
           headerLeft: () => backButton,
         }}
       />

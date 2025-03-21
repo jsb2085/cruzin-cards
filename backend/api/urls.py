@@ -1,6 +1,7 @@
 from django.urls import path
-from .views import CardListCreateView, CardRetrieveUpdateDestroyView, CardImageUploadView, NativeLoginView, RegisterView, ManualCardCreateView
-from rest_framework_simplejwt.views import TokenRefreshView, TokenObtainPairView
+from .views import RetrieveCardPrice, CardShopListCreateView, CardShopRetrieveUpdateDestroyView, CardListCreateView, CardRetrieveUpdateDestroyView, CardImageUploadView, NativeLoginView, RegisterView, ManualCardCreateView, UserDetailView
+from rest_framework_simplejwt.views import TokenRefreshView
+
 
 
 urlpatterns = [
@@ -12,5 +13,9 @@ urlpatterns = [
     path('cards/<int:pk>/', CardRetrieveUpdateDestroyView.as_view(), name='item-detail'),
     path('upload/', CardImageUploadView.as_view(), name='card-image-upload'),
     path('upload/manual/', ManualCardCreateView.as_view(), name='manual-card-create'),
-
+    path("user/", UserDetailView.as_view(), name="user-detail"),
+    path("cardshops/", CardShopListCreateView.as_view(), name="cardshop-list-create"),
+    path("cardshops/<int:pk>/", CardShopRetrieveUpdateDestroyView.as_view(), name="cardshop-detail"),
+    path("card_price/<int:pk>/", RetrieveCardPrice.as_view(), name="card-price")
 ]
+
