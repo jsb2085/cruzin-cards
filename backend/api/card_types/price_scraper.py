@@ -1,7 +1,9 @@
-import requests
+import requests, os
+from dotenv import load_dotenv
 
+load_dotenv()
 # Replace with your ScraperAPI key
-SCRAPER_API_KEY = "1d8ddbe5e156dca404a3e430e79b9163"
+SCRAPER_API_KEY = os.environ.get("SCAPER_API")
 
 def get_ebay_prices(search_query):
     # Format search query for eBay
