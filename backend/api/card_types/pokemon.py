@@ -15,6 +15,7 @@ class PokemonCard(BaseModel):
     set_number: str
 
 def pokemon_name_and_set_number(card_name, set_number):
+    print("HERE 3")
     base_url = "https://api.pokemontcg.io/v2/cards"
     # Match name to most similar card name in the database
     sym_spell = SymSpell(max_dictionary_edit_distance=2)
@@ -22,6 +23,7 @@ def pokemon_name_and_set_number(card_name, set_number):
     suggestions = sym_spell.lookup(card_name, verbosity=2, max_edit_distance=2)
     if suggestions:
         card_name = suggestions[0].term
+        print(suggestions[0].term)
 
     query = f'name:"{card_name}"'
     params = {'q': query}
@@ -37,8 +39,9 @@ def pokemon_name_and_set_number(card_name, set_number):
             return None
     else:
         return f"Error: {response.status_code}"
-    
+
 def ai_name_set_number_pokemon(card_text: str):
+    print("HERE 2")
     chat_completion = groq.chat.completions.create(
         messages=[
             {

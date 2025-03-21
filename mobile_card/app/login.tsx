@@ -1,5 +1,13 @@
 import React, { useState } from "react";
-import { View, Text, TextInput, Button, StyleSheet, Alert, useAnimatedValue } from "react-native";
+import {
+  View,
+  Text,
+  TextInput,
+  Button,
+  StyleSheet,
+  Alert,
+  useAnimatedValue,
+} from "react-native";
 import { useRouter } from "expo-router";
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -20,7 +28,7 @@ export default function LoginScreen() {
 
     try {
       const response = await axios.post(
-        "http://127.0.0.1:8000/api/login/",
+        "https://specifically-eugene-factor-trades.trycloudflare.com/api/login/",
         {
           username,
           password,
@@ -34,8 +42,8 @@ export default function LoginScreen() {
       await AsyncStorage.setItem("username", username);
 
       Alert.alert("Success", "Logged in successfully!");
-      setUsername("")
-      setPassword("")
+      setUsername("");
+      setPassword("");
       router.replace("/");
     } catch (error) {
       console.error("Login failed:", error.response?.data);

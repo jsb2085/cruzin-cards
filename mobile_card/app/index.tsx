@@ -13,8 +13,7 @@ import {
 import { useRouter } from "expo-router";
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import 'react-native-get-random-values';
-
+import "react-native-get-random-values";
 
 export default function HomeScreen() {
   const [cards, setCards] = useState([]);
@@ -28,7 +27,7 @@ export default function HomeScreen() {
     try {
       const token = await AsyncStorage.getItem("access_token");
       const response = await axios.get(
-        "http://127.0.0.1:8000/api/cards/",
+        "https://specifically-eugene-factor-trades.trycloudflare.com/api/cards/",
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -47,7 +46,7 @@ export default function HomeScreen() {
   // Fetch username from stored token
   const fetchUsername = async () => {
     const username = await AsyncStorage.getItem("username");
-    console.log(username)
+    console.log(username);
     setUsername(username || "User");
   };
 
@@ -83,20 +82,28 @@ export default function HomeScreen() {
   );
 
   return (
-    <View style={styles.container}
-    >
+    <View style={styles.container}>
       <Text style={styles.header}>Welcome, {username}!</Text>
 
       <Button
         title="Upload a New Card"
         onPress={() => router.replace("/scan")}
       />
-    {username !== "User" ? <View style={styles.logoutButton}>
-        <Button title="Logout" color="red" onPress={logout} />
-      </View> : <View style={styles.logoutButton}>
-        <Button title="Login" color="blue" onPress={() => {router.replace("/login")}} />
-      </View>
-    }
+      {username !== "User" ? (
+        <View style={styles.logoutButton}>
+          <Button title="Logout" color="red" onPress={logout} />
+        </View>
+      ) : (
+        <View style={styles.logoutButton}>
+          <Button
+            title="Login"
+            color="blue"
+            onPress={() => {
+              router.replace("/login");
+            }}
+          />
+        </View>
+      )}
 
       <Text style={styles.subHeader}>Your Cards:</Text>
 

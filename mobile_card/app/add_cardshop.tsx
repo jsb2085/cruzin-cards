@@ -1,5 +1,3 @@
-
-
 import React, { useState } from "react";
 import {
   View,
@@ -17,8 +15,8 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
 import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
 
-
-const API_URL = "http://127.0.0.1:8000/api/cardshops/"; // Replace with your backend URL
+const API_URL =
+  "https://specifically-eugene-factor-trades.trycloudflare.com/api/cardshops/"; // Replace with your backend URL
 const GOOGLE_API_KEY = process.env.EXPO_PUBLIC_GOOGLE_API_KEY; // Replace with your API Key
 
 export default function AddCardShop() {
@@ -76,13 +74,26 @@ export default function AddCardShop() {
 
   const formFields = [
     { placeholder: "Shop Name", value: shopName, onChangeText: setShopName },
-    { placeholder: "Description", value: description, onChangeText: setDescription, multiline: true },
+    {
+      placeholder: "Description",
+      value: description,
+      onChangeText: setDescription,
+      multiline: true,
+    },
     { placeholder: "City", value: city, onChangeText: setCity },
     { placeholder: "State", value: state, onChangeText: setState },
-    { placeholder: "Postal Code", value: postalCode, onChangeText: setPostalCode },
+    {
+      placeholder: "Postal Code",
+      value: postalCode,
+      onChangeText: setPostalCode,
+    },
     { placeholder: "Country", value: country, onChangeText: setCountry },
     { placeholder: "Phone (Optional)", value: phone, onChangeText: setPhone },
-    { placeholder: "Website (Optional)", value: website, onChangeText: setWebsite },
+    {
+      placeholder: "Website (Optional)",
+      value: website,
+      onChangeText: setWebsite,
+    },
   ];
 
   return (
@@ -140,7 +151,11 @@ export default function AddCardShop() {
           />
         )}
         ListFooterComponent={
-          <Button title={loading ? "Adding..." : "Add Shop"} onPress={handleAddShop} disabled={loading} />
+          <Button
+            title={loading ? "Adding..." : "Add Shop"}
+            onPress={handleAddShop}
+            disabled={loading}
+          />
         }
       />
     </KeyboardAvoidingView>
@@ -185,7 +200,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     width: "100%",
     zIndex: 200,
-    marginTop: 50
+    marginTop: 50,
   },
   dropdownList: {
     backgroundColor: "#fff",

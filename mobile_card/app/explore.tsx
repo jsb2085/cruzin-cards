@@ -14,7 +14,8 @@ import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
 
-const API_URL = "http://127.0.0.1:8000/api"; // Replace with your backend URL
+const API_URL =
+  "https://specifically-eugene-factor-trades.trycloudflare.com/api"; // Replace with your backend URL
 
 export default function ViewCards() {
   const [cards, setCards] = useState([]);
@@ -94,19 +95,22 @@ export default function ViewCards() {
 
   const renderItem = ({ item }) => (
     <TouchableOpacity
-    onPress={() => {router.push(`/card/${item.id}`)}}>
-    <View style={styles.card}>
-      <View style={styles.cardDetails}>
-        <Text style={styles.text}>{item.name}</Text>
-        <Text>{item.card_company}</Text>
-        <Text>Set: {item.set}</Text>
-        <Text>Number: {item.number}</Text>
+      onPress={() => {
+        router.push(`/card/${item.id}`);
+      }}
+    >
+      <View style={styles.card}>
+        <View style={styles.cardDetails}>
+          <Text style={styles.text}>{item.name}</Text>
+          <Text>{item.card_company}</Text>
+          <Text>Set: {item.set}</Text>
+          <Text>Number: {item.number}</Text>
+        </View>
+        <Image
+          source={{ uri: item.card_image.card_front_image }}
+          style={styles.image}
+        />
       </View>
-      <Image
-        source={{ uri: item.card_image.card_front_image }}
-        style={styles.image}
-      />
-    </View>
     </TouchableOpacity>
   );
 

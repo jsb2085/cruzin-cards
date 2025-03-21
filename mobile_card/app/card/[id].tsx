@@ -1,10 +1,18 @@
 import React, { useEffect, useState } from "react";
 import { useLocalSearchParams } from "expo-router";
-import { View, Text, Image, StyleSheet, ScrollView, ActivityIndicator } from "react-native";
+import {
+  View,
+  Text,
+  Image,
+  StyleSheet,
+  ScrollView,
+  ActivityIndicator,
+} from "react-native";
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const API_URL = "http://127.0.0.1:8000/api/cards"; // Replace with your API
+const API_URL =
+  "https://specifically-eugene-factor-trades.trycloudflare.com/api/cards"; // Replace with your API
 
 export default function CardDetails() {
   const { id } = useLocalSearchParams();
@@ -31,24 +39,28 @@ export default function CardDetails() {
   const fetchPrice = async () => {
     try {
       const token = await AsyncStorage.getItem("access_token");
-      const response = await axios.get(`http://127.0.0.1:8000/api/card_price/${id}/`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await axios.get(
+        `https://specifically-eugene-factor-trades.trycloudflare.com/api/card_price/${id}/`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       setPrice(response.data.price);
-    } catch (error) {
-    }
+    } catch (error) {}
   };
 
   useEffect(() => {
-    setPrice(0)
+    setPrice(0);
     fetchCardDetails();
     fetchPrice();
   }, [id]);
 
   if (loading) {
-    return <ActivityIndicator size="large" color="#6200ee" style={styles.loader} />;
+    return (
+      <ActivityIndicator size="large" color="#6200ee" style={styles.loader} />
+    );
   }
 
   if (!card) {
@@ -58,15 +70,20 @@ export default function CardDetails() {
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <View style={styles.imageContainer}>
-        <Image source={{ uri: card.card_image.card_front_image }} style={styles.image} />
-        <Image source={{ uri: card.card_image.card_back_image }} style={styles.image} />
+        <Image
+          source={{ uri: card.card_image.card_front_image }}
+          style={styles.image}
+        />
+        <Image
+          source={{ uri: card.card_image.card_back_image }}
+          style={styles.image}
+        />
       </View>
 
       <Text style={styles.title}>{card.name}</Text>
       <Text style={styles.text}>Company: {card.card_company}</Text>
       <Text style={styles.text}>Set: {card.set}</Text>
       <Text style={styles.text}>Number: {card.number}</Text>
-
 
       <View style={styles.priceContainer}>
         <Text style={styles.priceTitle}>Estimated Market Price</Text>
@@ -127,7 +144,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     backgroundColor: "#f5f5f5",
     alignItems: "center",
-    alignSelf: "center"
+    alignSelf: "center",
   },
   priceTitle: {
     fontSize: 20,

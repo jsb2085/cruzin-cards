@@ -21,7 +21,7 @@ export default function RegisterScreen() {
 
     try {
       const response = await axios.post(
-        "http://127.0.0.1:8000/api/register/",
+        "https://specifically-eugene-factor-trades.trycloudflare.com/api/register/",
         {
           email,
           username,

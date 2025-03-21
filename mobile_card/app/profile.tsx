@@ -1,11 +1,22 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, StyleSheet, Image, ActivityIndicator, Button, FlatList, ScrollView } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  Image,
+  ActivityIndicator,
+  Button,
+  FlatList,
+  ScrollView,
+} from "react-native";
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
 
-const API_URL = "http://127.0.0.1:8000/api/user/"; // Replace with your backend URL
-const SHOPS_API_URL = "http://127.0.0.1:8000/api/cardshops/"; // Replace with your backend URL
+const API_URL =
+  "https://specifically-eugene-factor-trades.trycloudflare.com/api/user/"; // Replace with your backend URL
+const SHOPS_API_URL =
+  "https://specifically-eugene-factor-trades.trycloudflare.com/api/cardshops/"; // Replace with your backend URL
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -25,7 +36,9 @@ export default function ProfilePage() {
 
         const [userResponse, shopsResponse] = await Promise.all([
           axios.get(API_URL, { headers: { Authorization: `Bearer ${token}` } }),
-          axios.get(SHOPS_API_URL, { headers: { Authorization: `Bearer ${token}` } }),
+          axios.get(SHOPS_API_URL, {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
         ]);
 
         setUser(userResponse.data);
@@ -41,7 +54,11 @@ export default function ProfilePage() {
   }, []);
 
   if (!user && !loading) {
-    return <Text style={styles.errorText}>Failed to load profile. Please check your connection.</Text>;
+    return (
+      <Text style={styles.errorText}>
+        Failed to load profile. Please check your connection.
+      </Text>
+    );
   }
 
   return (
@@ -52,12 +69,21 @@ export default function ProfilePage() {
         <>
           <Text style={styles.name}>{user?.username}</Text>
           <Text style={styles.info}>Username: {user?.username}</Text>
-          <Text style={styles.info}>First Name: {user?.firstname || "Not provided"}</Text>
-          <Text style={styles.info}>Last Name: {user?.lastname || "Not provided"}</Text>
-          <Text style={styles.info}>Email: {user?.email || "Not provided"}</Text>
+          <Text style={styles.info}>
+            First Name: {user?.firstname || "Not provided"}
+          </Text>
+          <Text style={styles.info}>
+            Last Name: {user?.lastname || "Not provided"}
+          </Text>
+          <Text style={styles.info}>
+            Email: {user?.email || "Not provided"}
+          </Text>
 
           <Button title="Edit Profile" onPress={() => router.push("/")} />
-          <Button title="Add Card Shop" onPress={() => router.push("/add_cardshop")} />
+          <Button
+            title="Add Card Shop"
+            onPress={() => router.push("/add_cardshop")}
+          />
 
           <Text style={styles.sectionTitle}>Your Card Shops</Text>
           {shops.length === 0 ? (
@@ -69,7 +95,10 @@ export default function ProfilePage() {
               renderItem={({ item }) => (
                 <View style={styles.shopContainer}>
                   <Text style={styles.shopName}>{item.name}</Text>
-                  <Text>{item.address}, {item.city}, {item.state}, {item.postal_code}, {item.country}</Text>
+                  <Text>
+                    {item.address}, {item.city}, {item.state},{" "}
+                    {item.postal_code}, {item.country}
+                  </Text>
                 </View>
               )}
             />

@@ -132,6 +132,12 @@ class CardImageUploadView(APIView):
                 )
             elif "Pokémon" in extracted_text:
                 pokemon_card = ai_name_set_number_pokemon(extracted_text)
+                pokemon_number = pokemon_card.set_number.split(' ')
+                poke_number = pokemon_number[len(pokemon_number) -1 ].strip(' ')
+                if poke_number[0] == "0":
+                    poke_number = poke_number[1:]
+                pokemon_card.set_number = poke_number
+                
                 pokemon_info = pokemon_name_and_set_number(pokemon_card.name, pokemon_card.set_number)
                 if pokemon_info == None:
                     return Response({
@@ -216,6 +222,9 @@ class ManualCardCreateView(APIView):
 
         elif card_company == "Pokémon":
             number = number.split('/')[0] # Remove the total number of cards in the set
+            number = number.split(' ')
+            number = number[len(number) - 1]
+
             pokemon_info = pokemon_name_and_set_number(name, number)
             if pokemon_info == None:
                 return Response({

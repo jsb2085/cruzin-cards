@@ -3,7 +3,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 # Replace with your ScraperAPI key
-SCRAPER_API_KEY = os.environ.get("SCAPER_API")
+SCRAPER_API_KEY = os.environ.get("SCRAPER_API")
 
 def get_ebay_prices(search_query):
     # Format search query for eBay
