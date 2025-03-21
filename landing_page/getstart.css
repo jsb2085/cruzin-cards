@@ -1,0 +1,62 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: black;
+    color: white;
+    background: url('/Users/tyler_ingles/Desktop/SandBox/Landing page/Images/Indexpage-backdrop.jpg') no-repeat center center/cover;
+}
+
+header {
+    background-color: #000406;
+    padding: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+nav ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+}
+
+nav ul li {
+    margin: 0 15px;
+}
+
+nav ul li a {
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.intro {
+    text-align: center;
+    padding: 50px;
+    background-color: #5C9EAD;
+}
+
+.steps {
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+    padding: 50px;
+    background: linear-gradient(to bottom, #5C9EAD, black);
+}
+
+.step {
+    background-color: #326273;
+    padding: 20px;
+    margin: 10px;
+    border-radius: 10px;
+    width: 30%;
+    text-align: center;
+}
+
+footer {
+    background-color: black;
+    text-align: center;
+    padding: 20px;
+}
