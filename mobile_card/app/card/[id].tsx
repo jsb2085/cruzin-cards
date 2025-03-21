@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useLocalSearchParams } from "expo-router";
 import { View, Text, Image, StyleSheet, ScrollView, ActivityIndicator } from "react-native";
 import axios from "axios";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const API_URL = "http://127.0.0.1:8000/api/cards"; // Replace with your API
 
@@ -11,26 +12,37 @@ export default function CardDetails() {
   const [loading, setLoading] = useState(true);
   const [price, setPrice] = useState(null);
 
+  const fetchCardDetails = async () => {
+    try {
+      const token = await AsyncStorage.getItem("access_token");
+      const response = await axios.get(`${API_URL}/${id}/`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setCard(response.data);
+    } catch (error) {
+      console.error("Error fetching card details:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchPrice = async () => {
+    try {
+      const token = await AsyncStorage.getItem("access_token");
+      const response = await axios.get(`http://127.0.0.1:8000/api/card_price/${id}/`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setPrice(response.data.price);
+    } catch (error) {
+    }
+  };
+
   useEffect(() => {
-    const fetchCardDetails = async () => {
-      try {
-        const response = await axios.get(`${API_URL}/${id}/`);
-        setCard(response.data);
-      } catch (error) {
-        console.error("Error fetching card details:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    const fetchPrice = async () => {
-      try {
-        const priceResponse = await axios.get(`https://api.example.com/pricing?name=${card?.name}&set=${card?.set}&number=${card?.number}`);
-        setPrice(priceResponse.data.average_price);
-      } catch (error) {
-      }
-    };
-
+    setPrice(0)
     fetchCardDetails();
     fetchPrice();
   }, [id]);
