@@ -142,9 +142,9 @@ class CardImageUploadView(APIView):
 
                 card = Card.objects.create(
                     owner=self.request.user,
-                    name=pokemon_info[0]['name'],
-                    set=pokemon_info[0]['set']['name'],
-                    number=f'{pokemon_card.set_number}/{pokemon_info[0]["set"]["printedTotal"]}',
+                    name=pokemon_info['name'],
+                    set=pokemon_info['set']['name'],
+                    number=f'{pokemon_card.set_number}/{pokemon_info["set"]["printedTotal"]}',
                     card_company="Pokémon",
                     numeration="None",
                     autograph=False,
@@ -213,6 +213,7 @@ class ManualCardCreateView(APIView):
                 )
 
         elif card_company == "Pokémon":
+            number = number.split('/')[0] # Remove the total number of cards in the set
             pokemon_info = pokemon_name_and_set_number(name, number)
             if pokemon_info == None:
                 return Response({
@@ -224,9 +225,9 @@ class ManualCardCreateView(APIView):
                 }, status=status.HTTP_200_OK)
             card = Card.objects.create(
                 owner=self.request.user,
-                name=pokemon_info[0]['name'],
-                set=pokemon_info[0]['set']['name'],
-                number=f'{number}/{pokemon_info[0]["set"]["printedTotal"]}',
+                name=pokemon_info['name'],
+                set=pokemon_info['set']['name'],
+                number=f'{number}/{pokemon_info["set"]["printedTotal"]}',
                 card_company="Pokémon",
                 numeration="None",
                 autograph=False,
